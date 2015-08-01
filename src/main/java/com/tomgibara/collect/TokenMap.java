@@ -11,7 +11,7 @@ import java.util.Set;
 
 import com.tomgibara.hashing.Hasher;
 
-final class TokenMap<V> extends AbstractMap<String, V> {
+public final class TokenMap<V> extends AbstractMap<String, V> {
 
 	private final String[] strings;
 	private final Hasher<String> hasher;

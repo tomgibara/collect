@@ -22,14 +22,8 @@ public final class Tokens {
 		this.hasher = hasher;
 	}
 	
-	public Set<String> newEmptySet() {
+	public TokenSet newSet() {
 		return new TokenSet(this);
-	}
-	
-	public Set<String> newFullSet() {
-		TokenSet set = new TokenSet(this);
-		set.fill();
-		return set;
 	}
 	
 	public <V> Maps<V> withStorage(Storage<V> storage) {
@@ -54,7 +48,7 @@ public final class Tokens {
 			this.storage = storage;
 		}
 
-		public Map<String, V> newMap() {
+		public TokenMap<V> newMap() {
 			return new TokenMap<>(strings, hasher, storage.newStore(strings.length));
 		}
 

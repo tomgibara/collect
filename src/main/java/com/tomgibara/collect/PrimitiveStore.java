@@ -1,8 +1,5 @@
 package com.tomgibara.collect;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
-
 import com.tomgibara.bits.BitVector;
 
 abstract class PrimitiveStore<V> implements Store<V> {
@@ -30,11 +27,6 @@ abstract class PrimitiveStore<V> implements Store<V> {
 		default: throw new IllegalArgumentException(type.getName());
 		}
 	}
-
-	//TODO how to support this?
-//	static <V> PrimitiveStore(V[] values) {
-//		size = populated.countOnes();
-//	}
 
 	int size;
 	BitVector populated;

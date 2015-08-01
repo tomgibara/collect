@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import com.tomgibara.bits.BitVector;
 import com.tomgibara.hashing.Hasher;
 
-class TokenSet extends AbstractSet<String> {
+public final class TokenSet extends AbstractSet<String> {
 
 	private final String[] strings;
 	private final Hasher<String> hasher;
@@ -18,6 +18,10 @@ class TokenSet extends AbstractSet<String> {
 		strings = tokens.strings;
 		hasher = tokens.hasher;
 		bits = new BitVector(tokens.strings.length);
+	}
+	
+	public void fill() {
+		bits.set(true);
 	}
 	
 	@Override
@@ -117,10 +121,6 @@ class TokenSet extends AbstractSet<String> {
 		}
 	}
 	
-	void fill() {
-		bits.set(true);
-	}
-
 	private int indexOf(Object o) {
 		if (!(o instanceof String)) return -1;
 		String s = (String) o;

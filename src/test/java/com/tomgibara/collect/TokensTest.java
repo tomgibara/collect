@@ -3,26 +3,25 @@ package com.tomgibara.collect;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import junit.framework.TestCase;
 
 import org.junit.Test;
 
 import com.tomgibara.collect.Tokens.Maps;
-
-import junit.framework.TestCase;
 
 public class TokensTest extends TestCase {
 
 	@Test
 	public void testSet() {
 		Tokens animals = Tokens.of("cat", "dog", "cow", "horse");
-		Set<String> mammals = animals.newFullSet();
+		TokenSet mammals = animals.newSet();
+		mammals.fill();
 		assertEquals(4, mammals.size());
 		assertTrue(mammals.contains("dog"));
 		assertFalse(mammals.contains("ant"));
-		int count = 0;
 		Set<String> set = new HashSet<String>();
 		for (String mammal : mammals) {
 			set.add(mammal);
@@ -56,7 +55,7 @@ public class TokensTest extends TestCase {
 	public void testMap() {
 		Tokens animals = Tokens.of("ostrich", "dog", "snail", "centipede");
 		Maps<Integer> counts = animals.withTypedStorage(int.class);
-		Map<String, Integer> legs = counts.newMap();
+		TokenMap<Integer> legs = counts.newMap();
 		assertNull( legs.get("ostrich") );
 		legs.put("ostrich", 2);
 		assertEquals((Integer)2, legs.get("ostrich"));
