@@ -84,4 +84,24 @@ public class TokensTest extends TestCase {
 		assertEquals(2, legs.size());
 	}
 	
+	public void testSetMutability() {
+		TokenSet set = Tokens.of("black", "white").newSet();
+		TokenSet imm = set.immutableView();
+		assertTrue(imm.isEmpty());
+		set.add("black");
+		assertFalse(imm.isEmpty());
+		try {
+			imm.add("white");
+			fail();
+		} catch (IllegalStateException e) {
+			/* expected */
+		}
+		TokenSet mut = set.mutableView();
+		assertNotSame(set, mut);
+		mut.add("white");
+		assertTrue(set.isFull());
+		TokenSet cpy = set.mutableCopy();
+		cpy.clear();
+		assertTrue(set.isFull());
+	}
 }

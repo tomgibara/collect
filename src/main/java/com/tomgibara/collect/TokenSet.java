@@ -8,21 +8,70 @@ import java.util.function.Predicate;
 import com.tomgibara.bits.BitVector;
 import com.tomgibara.hashing.Hasher;
 
-public final class TokenSet extends AbstractSet<String> {
+public final class TokenSet extends AbstractSet<String> implements Mutability<TokenSet> {
 
 	private final String[] strings;
 	private final Hasher<String> hasher;
 	private final BitVector bits;
 	
 	TokenSet(Tokens tokens) {
-		strings = tokens.strings;
-		hasher = tokens.hasher;
-		bits = new BitVector(tokens.strings.length);
+		this(tokens.strings, tokens.hasher, new BitVector(tokens.strings.length));
 	}
+
+	private TokenSet(String[] strings, Hasher<String> hasher, BitVector bits) {
+		this.strings = strings;
+		this.hasher = hasher;
+		this.bits = bits;
+	}
+	
+	// methods
 	
 	public void fill() {
 		bits.set(true);
 	}
+	
+	public boolean isFull() {
+		return bits.isAllOnes();
+	}
+	
+	// mutability
+	
+	@Override
+	public boolean isMutable() {
+		return bits.isMutable();
+	}
+	
+	@Override
+	public TokenSet mutable() {
+		return isMutable() ? this : mutableCopy();
+	}
+
+	@Override
+	public TokenSet immutable() {
+		return isMutable() ? immutableCopy() : this;
+	}
+	
+	@Override
+	public TokenSet mutableCopy() {
+		return new TokenSet(strings, hasher, bits.mutableCopy());
+	}
+	
+	@Override
+	public TokenSet immutableCopy() {
+		return new TokenSet(strings, hasher, bits.immutableCopy());
+	}
+	
+	@Override
+	public TokenSet mutableView() {
+		return new TokenSet(strings, hasher, bits.mutableView());
+	}
+	
+	@Override
+	public TokenSet immutableView() {
+		return new TokenSet(strings, hasher, bits.immutableView());
+	}
+
+	// set
 	
 	@Override
 	public int size() {
@@ -120,6 +169,8 @@ public final class TokenSet extends AbstractSet<String> {
 			action.accept(strings[p]);
 		}
 	}
+	
+	// private utility methods
 	
 	private int indexOf(Object o) {
 		if (!(o instanceof String)) return -1;
