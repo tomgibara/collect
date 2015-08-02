@@ -48,7 +48,7 @@ public final class TokenSet extends AbstractSet<String> implements Mutability<To
 
 	@Override
 	public TokenSet immutable() {
-		return isMutable() ? immutableCopy() : this;
+		return isMutable() ? immutableView() : this;
 	}
 	
 	@Override
@@ -69,7 +69,7 @@ public final class TokenSet extends AbstractSet<String> implements Mutability<To
 	
 	@Override
 	public TokenSet immutableView() {
-		return new TokenSet(strings, hasher, bits.isMutable() ? bits.immutableView() : bits);
+		return new TokenSet(strings, hasher, bits.immutable());
 	}
 
 	// set

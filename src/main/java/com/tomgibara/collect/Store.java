@@ -27,7 +27,7 @@ public interface Store<V> extends Mutability<Store<V>> {
 
 	@Override
 	default Store<V> immutable() {
-		return isMutable() ? immutableCopy() : this;
+		return isMutable() ? immutableView() : this;
 	}
 	
 	@Override
