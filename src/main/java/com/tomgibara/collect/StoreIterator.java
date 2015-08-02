@@ -7,10 +7,11 @@ abstract class StoreIterator<V, E> implements Iterator<E> {
 
 	final Store<V> store;
 	private int previous = -1;
-	private int next = subsequent(previous + 1);
+	private int next;
 
 	StoreIterator(Store<V> store) {
 		this.store = store;
+		next = subsequent(previous + 1);
 	}
 	
 	@Override
