@@ -11,8 +11,10 @@ import java.util.Set;
 
 import com.tomgibara.hashing.Hasher;
 
-public final class TokenMap<V> extends AbstractMap<String, V> {
+public final class TokenMap<V> extends AbstractMap<String, V> implements Mutability<TokenMap<V>> {
 
+	// fields
+	
 	private final String[] strings;
 	private final Hasher<String> hasher;
 	private final Store<V> store;
@@ -21,11 +23,53 @@ public final class TokenMap<V> extends AbstractMap<String, V> {
 	private Keys keys = null;
 	private Values values = null;
 	
+	// constructors
+	
 	TokenMap(String[] strings, Hasher<String> hasher, Store<V> store) {
 		this.strings = strings;
 		this.hasher = hasher;
 		this.store = store;
 	}
+	
+	// mutability
+	
+	@Override
+	public boolean isMutable() {
+		return store.isMutable();
+	}
+	
+	@Override
+	public TokenMap<V> mutableCopy() {
+		return new TokenMap<>(strings, hasher, store.mutableCopy());
+	}
+	
+	@Override
+	public TokenMap<V> mutableView() {
+		if (!store.isMutable()) throw new IllegalStateException("Cannot take a mutable view of an immutable map");
+		return new TokenMap<>(strings, hasher, store);
+	}
+	
+	@Override
+	public TokenMap<V> immutableCopy() {
+		return new TokenMap<>(strings, hasher, store.immutableCopy());
+	}
+	
+	@Override
+	public TokenMap<V> immutableView() {
+		return new TokenMap<>(strings, hasher, store.isMutable() ? store.immutableView() : store);
+	}
+	
+	@Override
+	public TokenMap<V> mutable() {
+		return isMutable() ? this : mutableCopy();
+	}
+	
+	@Override
+	public TokenMap<V> immutable() {
+		return isMutable() ? immutableCopy() : this;
+	}
+	
+	// map
 	
 	@Override
 	public int size() {

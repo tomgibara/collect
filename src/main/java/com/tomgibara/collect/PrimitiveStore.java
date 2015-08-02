@@ -40,10 +40,16 @@ abstract class PrimitiveStore<V> implements Store<V> {
 		populated = new BitVector(capacity);
 		this.size = 0;
 	}
+
+	// store
 	
 	@Override
 	public int size() {
 		return size;
+	}
+	
+	public int capacity() {
+		return populated.size();
 	}
 	
 	@Override
@@ -52,11 +58,6 @@ abstract class PrimitiveStore<V> implements Store<V> {
 		size = 0;
 	}
 
-	@Override
-	public boolean isMutable() {
-		return populated.isMutable();
-	}
-	
 	@Override
 	public V get(int index) {
 		return populated.getBit(index) ? getImpl(index) : null;
@@ -81,16 +82,41 @@ abstract class PrimitiveStore<V> implements Store<V> {
 		return null;
 	}
 
-	@Override
-	public Store<V> mutableCopy() {
-		return isMutable() ? immutableCopy() : this;
-	}
+	// for extension
 	
 	abstract protected V getImpl(int index);
 	
 	abstract protected void setImpl(int index, V value);
 	
-	abstract protected PrimitiveStore<V> immutableCopy();
+	abstract protected Store<V> duplicate(BitVector populated, boolean copy);
+	
+	// mutability
+	
+	@Override
+	public boolean isMutable() {
+		return populated.isMutable();
+	}
+	
+	@Override
+	public Store<V> mutableCopy() {
+		return duplicate(populated.mutableCopy(), true);
+	}
+
+	@Override
+	public Store<V> mutableView() {
+		if (!isMutable()) throw new IllegalStateException("Cannot take mutable view of immutable store");
+		return duplicate(populated, false);
+	}
+	
+	@Override
+	public Store<V> immutableCopy() {
+		return duplicate(populated.immutableCopy(), true);
+	}
+	
+	@Override
+	public Store<V> immutableView() {
+		return new ImmutableStore<>(this);
+	}
 	
 	// inner classes
 
@@ -103,9 +129,9 @@ abstract class PrimitiveStore<V> implements Store<V> {
 			this.values = new byte[capacity];
 		}
 
-		private ByteStore(ByteStore that) {
-			super(that.populated.immutableCopy(), that.size);
-			this.values = that.values.clone();
+		private ByteStore(BitVector populated, int size, byte[] values) {
+			super(populated, size);
+			this.values = values;
 		}
 
 		@Override
@@ -124,8 +150,8 @@ abstract class PrimitiveStore<V> implements Store<V> {
 		}
 
 		@Override
-		public ByteStore immutableCopy() {
-			return new ByteStore(this);
+		protected ByteStore duplicate(BitVector populated, boolean copy) {
+			return new ByteStore(populated, size, copy ? values.clone() : values);
 		}
 
 	}
@@ -139,9 +165,9 @@ abstract class PrimitiveStore<V> implements Store<V> {
 			this.values = new float[capacity];
 		}
 
-		private FloatStore(FloatStore that) {
-			super(that.populated.immutableCopy(), that.size);
-			this.values = that.values.clone();
+		private FloatStore(BitVector populated, int size, float[] values) {
+			super(populated, size);
+			this.values = values;
 		}
 
 		@Override
@@ -160,8 +186,8 @@ abstract class PrimitiveStore<V> implements Store<V> {
 		}
 
 		@Override
-		public FloatStore immutableCopy() {
-			return new FloatStore(this);
+		protected FloatStore duplicate(BitVector populated, boolean copy) {
+			return new FloatStore(populated, size, copy ? values.clone() : values);
 		}
 
 	}
@@ -175,9 +201,9 @@ abstract class PrimitiveStore<V> implements Store<V> {
 			this.values = new char[capacity];
 		}
 
-		private CharacterStore(CharacterStore that) {
-			super(that.populated.immutableCopy(), that.size);
-			this.values = that.values.clone();
+		private CharacterStore(BitVector populated, int size, char[] values) {
+			super(populated, size);
+			this.values = values;
 		}
 
 		@Override
@@ -196,8 +222,8 @@ abstract class PrimitiveStore<V> implements Store<V> {
 		}
 
 		@Override
-		public CharacterStore immutableCopy() {
-			return new CharacterStore(this);
+		protected CharacterStore duplicate(BitVector populated, boolean copy) {
+			return new CharacterStore(populated, size, copy ? values.clone() : values);
 		}
 
 	}
@@ -211,9 +237,9 @@ abstract class PrimitiveStore<V> implements Store<V> {
 			this.values = new short[capacity];
 		}
 
-		private ShortStore(ShortStore that) {
-			super(that.populated.immutableCopy(), that.size);
-			this.values = that.values.clone();
+		private ShortStore(BitVector populated, int size, short[] values) {
+			super(populated, size);
+			this.values = values;
 		}
 
 		@Override
@@ -232,8 +258,8 @@ abstract class PrimitiveStore<V> implements Store<V> {
 		}
 
 		@Override
-		public ShortStore immutableCopy() {
-			return new ShortStore(this);
+		protected ShortStore duplicate(BitVector populated, boolean copy) {
+			return new ShortStore(populated, size, copy ? values.clone() : values);
 		}
 
 	}
@@ -247,9 +273,9 @@ abstract class PrimitiveStore<V> implements Store<V> {
 			this.values = new long[capacity];
 		}
 
-		private LongStore(LongStore that) {
-			super(that.populated.immutableCopy(), that.size);
-			this.values = that.values.clone();
+		private LongStore(BitVector populated, int size, long[] values) {
+			super(populated, size);
+			this.values = values;
 		}
 
 		@Override
@@ -268,8 +294,8 @@ abstract class PrimitiveStore<V> implements Store<V> {
 		}
 
 		@Override
-		public LongStore immutableCopy() {
-			return new LongStore(this);
+		protected LongStore duplicate(BitVector populated, boolean copy) {
+			return new LongStore(populated, size, copy ? values.clone() : values);
 		}
 
 	}
@@ -283,9 +309,9 @@ abstract class PrimitiveStore<V> implements Store<V> {
 			this.values = new int[capacity];
 		}
 
-		private IntegerStore(IntegerStore that) {
-			super(that.populated.immutableCopy(), that.size);
-			this.values = that.values.clone();
+		private IntegerStore(BitVector populated, int size, int[] values) {
+			super(populated, size);
+			this.values = values;
 		}
 
 		@Override
@@ -304,8 +330,8 @@ abstract class PrimitiveStore<V> implements Store<V> {
 		}
 
 		@Override
-		public IntegerStore immutableCopy() {
-			return new IntegerStore(this);
+		protected IntegerStore duplicate(BitVector populated, boolean copy) {
+			return new IntegerStore(populated, size, copy ? values.clone() : values);
 		}
 
 	}
@@ -319,9 +345,9 @@ abstract class PrimitiveStore<V> implements Store<V> {
 			this.values = new double[capacity];
 		}
 
-		private DoubleStore(DoubleStore that) {
-			super(that.populated.immutableCopy(), that.size);
-			this.values = that.values.clone();
+		private DoubleStore(BitVector populated, int size, double[] values) {
+			super(populated, size);
+			this.values = values;
 		}
 
 		@Override
@@ -340,8 +366,8 @@ abstract class PrimitiveStore<V> implements Store<V> {
 		}
 
 		@Override
-		public DoubleStore immutableCopy() {
-			return new DoubleStore(this);
+		protected DoubleStore duplicate(BitVector populated, boolean copy) {
+			return new DoubleStore(populated, size, copy ? values.clone() : values);
 		}
 
 	}
@@ -355,9 +381,9 @@ abstract class PrimitiveStore<V> implements Store<V> {
 			this.values = new boolean[capacity];
 		}
 
-		private BooleanStore(BooleanStore that) {
-			super(that.populated.immutableCopy(), that.size);
-			this.values = that.values.clone();
+		private BooleanStore(BitVector populated, int size, boolean[] values) {
+			super(populated, size);
+			this.values = values;
 		}
 
 		@Override
@@ -376,8 +402,8 @@ abstract class PrimitiveStore<V> implements Store<V> {
 		}
 
 		@Override
-		public BooleanStore immutableCopy() {
-			return new BooleanStore(this);
+		protected BooleanStore duplicate(BitVector populated, boolean copy) {
+			return new BooleanStore(populated, size, copy ? values.clone() : values);
 		}
 
 	}

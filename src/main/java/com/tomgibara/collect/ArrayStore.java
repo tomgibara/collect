@@ -27,6 +27,11 @@ class ArrayStore<V> implements Store<V> {
 	public Class<? extends V> valueType() {
 		return (Class<? extends V>) values.getClass().getComponentType();
 	}
+	
+	@Override
+	public int capacity() {
+		return values.length;
+	}
 
 	@Override
 	public int size() {
@@ -52,20 +57,22 @@ class ArrayStore<V> implements Store<V> {
 		Arrays.fill(values, null);
 		size = 0;
 	}
+	
+	// mutability
 
 	@Override
-	public boolean isMutable() {
-		return true;
-	}
+	public boolean isMutable() { return true; }
 	
 	@Override
-	public Store<V> immutable() {
-		return new ImmutableArrayStore<V>(this);
-	}
+	public Store<V> mutableCopy() { return new ArrayStore<>(values.clone(), size); }
 	
 	@Override
-	public Store<V> mutableCopy() {
-		return new ArrayStore<V>(values.clone(), size);
-	}
+	public Store<V> immutableCopy() { return new ImmutableArrayStore<>(values.clone(), size); }
+	
+	@Override
+	public Store<V> mutableView() { return new ArrayStore<>(values, size); }
+	
+	@Override
+	public Store<V> immutableView() { return new ImmutableStore<>(this); }
 
 }

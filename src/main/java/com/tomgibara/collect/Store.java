@@ -1,10 +1,11 @@
 package com.tomgibara.collect;
 
-import java.lang.reflect.Array;
 
-public interface Store<V> {
+public interface Store<V> extends Mutability<Store<V>> {
 
 	Class<? extends V> valueType();
+
+	int capacity();
 	
 	int size();
 	
@@ -14,17 +15,25 @@ public interface Store<V> {
 	
 	default void clear() { throw new UnsupportedOperationException(); }
 	
-	//TODO use to check calls early?
-	default boolean isMutable() { return false; }
+	@Override
+	default Store<V> mutable() {
+		return isMutable() ? this : mutableCopy();
+	}
 	
-	default Store<V> immutable() { return isMutable() ? Stores.newImmutableStore(this) : this; }
-	
+	@Override
 	default Store<V> mutableCopy() {
-		V[] vs = (V[]) Array.newInstance(valueType(), 64);
-		for (int i = 0; i < 64; i++) {
-			vs[i] = get(i);
-		}
-		return new ArrayStore<V>(vs, size());
+		return new ArrayStore<>(Stores.toArray(this), size());
 	}
 
+	@Override
+	default Store<V> immutable() {
+		return isMutable() ? immutableCopy() : this;
+	}
+	
+	@Override
+	default Store<V> immutableCopy() {
+		return new ImmutableArrayStore<>(Stores.toArray(this), size());
+	}
+
+	
 }

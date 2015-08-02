@@ -63,12 +63,13 @@ public final class TokenSet extends AbstractSet<String> implements Mutability<To
 	
 	@Override
 	public TokenSet mutableView() {
-		return new TokenSet(strings, hasher, bits.mutableView());
+		if (!bits.isMutable()) throw new IllegalStateException("Cannot take mutable view of immutable set");
+		return new TokenSet(strings, hasher, bits);
 	}
 	
 	@Override
 	public TokenSet immutableView() {
-		return new TokenSet(strings, hasher, bits.immutableView());
+		return new TokenSet(strings, hasher, bits.isMutable() ? bits.immutableView() : bits);
 	}
 
 	// set

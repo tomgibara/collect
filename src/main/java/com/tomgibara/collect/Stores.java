@@ -1,31 +1,22 @@
 package com.tomgibara.collect;
 
+import java.lang.reflect.Array;
+
 public class Stores {
-
-	static <V> Store<V> newImmutableStore(Store<V> store) {
-		return new Store<V>() {
-
-			@Override
-			public Class<? extends V> valueType() {
-				return store.valueType();
-			}
-
-			@Override
-			public int size() {
-				return store.size();
-			}
-
-			@Override
-			public V get(int index) {
-				return store.get(index);
-			}
-		};
-	}
 
 	static <V> int countNonNulls(V[] vs) {
 		int sum = 0;
 		for (V v : vs) { sum++; }
 		return sum;
+	}
+	
+	static <V> V[] toArray(Store<V> store) {
+		int capacity = store.capacity();
+		V[] vs = (V[]) Array.newInstance(store.valueType(), capacity);
+		for (int i = 0; i < capacity; i++) {
+			vs[i] = store.get(i);
+		}
+		return vs;
 	}
 
 }
