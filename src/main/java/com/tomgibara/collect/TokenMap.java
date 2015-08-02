@@ -247,7 +247,7 @@ public final class TokenMap<V> extends AbstractMap<String, V> implements Mutabil
 
 		@Override
 		public Iterator<String> iterator() {
-			return new TokenIterator<String>() {
+			return new StoreIterator<V, String>(store) {
 				@Override
 				String get(int index) {
 					return strings[index];
@@ -288,7 +288,7 @@ public final class TokenMap<V> extends AbstractMap<String, V> implements Mutabil
 
 		@Override
 		public Iterator<V> iterator() {
-			return new TokenIterator<V>() {
+			return new StoreIterator<V,V>(store) {
 				@Override
 				V get(int index) {
 					return store.get(index);
@@ -338,7 +338,7 @@ public final class TokenMap<V> extends AbstractMap<String, V> implements Mutabil
 
 		@Override
 		public Iterator<Entry<String, V>> iterator() {
-			return new TokenIterator<Entry<String, V>>() {
+			return new StoreIterator<V, Entry<String, V>>(store) {
 				@Override
 				TokenEntry get(int index) {
 					return new TokenEntry(index);
@@ -353,46 +353,6 @@ public final class TokenMap<V> extends AbstractMap<String, V> implements Mutabil
 		
 	}
 	
-	abstract private class TokenIterator<X> implements Iterator<X> {
-		
-		int previous = -1;
-		int next = subsequent(previous + 1);
-
-		@Override
-		public X next() {
-			if (next == strings.length) throw new NoSuchElementException();
-			X x = get(next);
-			int tmp = next;
-			next = subsequent(previous + 1);
-			previous = tmp;
-			return x;
-		}
-
-		@Override
-		public boolean hasNext() {
-			return next != strings.length;
-		}
-
-		@Override
-		public void remove() {
-			if (previous == -1) throw new NoSuchElementException();
-			V value = store.get(previous);
-			if (value == null) throw new IllegalStateException();
-			store.set(previous, null);
-		}
-		
-		abstract X get(int index);
-
-		private int subsequent(int i) {
-			int length = strings.length;
-			for (; i < length; i++) {
-				if (store.get(i) != null) return i;
-			}
-			return length;
-		}
-
-	}
-
 	final private class TokenEntry extends AbstractMapEntry<String, V> {
 		
 		private final int index;

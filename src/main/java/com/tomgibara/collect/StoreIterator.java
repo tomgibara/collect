@@ -5,7 +5,7 @@ import java.util.NoSuchElementException;
 
 abstract class StoreIterator<V, E> implements Iterator<E> {
 
-	private final Store<V> store;
+	final Store<V> store;
 	private int previous = -1;
 	private int next = subsequent(previous + 1);
 
