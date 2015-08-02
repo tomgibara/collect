@@ -1,23 +1,13 @@
 package com.tomgibara.collect;
 
-import java.util.Map;
-import java.util.Set;
-
 import com.tomgibara.hashing.Hasher;
-import com.tomgibara.hashing.Hashing;
 
 public final class Tokens {
 
 	final String[] strings;
 	final Hasher<String> hasher;
 	
-	public static Tokens of(String... strings) {
-		if (strings == null) throw new IllegalArgumentException("null strings");
-		strings = strings.clone();
-		return new Tokens(strings, Hashing.minimalPerfect(strings));
-	}
-	
-	private Tokens(String[] tokens, Hasher<String> hasher) {
+	Tokens(String[] tokens, Hasher<String> hasher) {
 		this.strings = tokens;
 		this.hasher = hasher;
 	}

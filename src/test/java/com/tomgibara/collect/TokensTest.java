@@ -16,7 +16,7 @@ public class TokensTest extends TestCase {
 
 	@Test
 	public void testSet() {
-		Tokens animals = Tokens.of("cat", "dog", "cow", "horse");
+		Tokens animals = Collect.tokens("cat", "dog", "cow", "horse");
 		TokenSet mammals = animals.newSet();
 		mammals.fill();
 		assertEquals(4, mammals.size());
@@ -53,7 +53,7 @@ public class TokensTest extends TestCase {
 
 	@Test
 	public void testMap() {
-		Tokens animals = Tokens.of("ostrich", "dog", "snail", "centipede");
+		Tokens animals = Collect.tokens("ostrich", "dog", "snail", "centipede");
 		Maps<Integer> counts = animals.withTypedStorage(int.class);
 		TokenMap<Integer> legs = counts.newMap();
 		assertNull( legs.get("ostrich") );
@@ -85,7 +85,7 @@ public class TokensTest extends TestCase {
 	}
 	
 	public void testSetMutability() {
-		TokenSet set = Tokens.of("black", "white").newSet();
+		TokenSet set = Collect.tokens("black", "white").newSet();
 		TokenSet imm = set.immutableView();
 		assertTrue(imm.isEmpty());
 		set.add("black");
