@@ -13,45 +13,34 @@ import com.tomgibara.storage.Store;
 
 public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<EquivalenceSet<E>> {
 
-	// statics
-	
-	private static final int HASH_COUNT = 3;
-	private static final int RETRY_LIMIT = 3;
-	
 	// fields
 	
-	private final int[] hashes = new int[HASH_COUNT];
-	private final Random random;
-	private final EquRel<E> equ;
+	private final Cuckoo<E> cuckoo;
 	private final Storage<E> storage;
-	private final Hasher<E> basis;
+	private Hasher<E> hasher = null;
 	private Store<E> store;
-	private Hasher<E> hasher;
 	
 	// constructors
 	
-	EquivalenceSet(Random random, EquRel<E> equ, Storage<E> storage, int initialCapacity) {
-		this.random = random;
-		this.equ = equ;
+	EquivalenceSet(Cuckoo<E> cuckoo, Storage<E> storage, int initialCapacity) {
+		this.cuckoo = cuckoo;
 		this.storage = storage;
-		basis = equ.getHasher().ints();
+		hasher = cuckoo.updateHasher(hasher, initialCapacity);
 		store = storage.newStore(initialCapacity);
-		hasher = deriveHasher();
 	}
 
 	private EquivalenceSet(EquivalenceSet<E> that, Store<E> store) {
-		this.random = that.random;
-		this.equ = that.equ;
+		// we have to copy because hasher is mutable
+		this.cuckoo = that.cuckoo;
 		this.storage = that.storage;
-		this.basis = that.basis;
 		this.store = store;
-		hasher = that.hasher.getSize().asInt() == store.capacity() ? that.hasher : deriveHasher();
+		hasher = cuckoo.updateHasher(hasher, store.capacity());
 	}
 
 	// accessors
 	
 	public EquRel<E> getEquivalence() {
-		return equ;
+		return cuckoo.equ;
 	}
 
 	// mutability
@@ -101,13 +90,13 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 	
 	@Override
 	public boolean contains(Object o) {
-		return indexOf(o) != -1;
+		return cuckoo.access(store, hasher).indexOf(o) != -1;
 	}
 	
 	@Override
 	public boolean remove(Object o) {
 		if (!store.isMutable()) throw new IllegalStateException("immutable");
-		int i = indexOf(o);
+		int i = cuckoo.access(store, hasher).indexOf(o);
 		if (i == -1) return false;
 		store.set(i, null);
 		return true;
@@ -127,7 +116,22 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 	public boolean add(E e) {
 		if (e == null) throw new IllegalArgumentException("null e");
 		if (!store.isMutable()) throw new IllegalStateException("immutable");
-		return insert(e, -1, 0);
+		while (true) {
+			Object result = cuckoo.access(store, hasher).add(e);
+			if (result == Cuckoo.SUCCESS) return true;
+			if (result == Cuckoo.FAILURE) return false;
+
+			e = (E) result;
+			Store<E> oldStore = store;
+			int oldCapacity = oldStore.capacity();
+			store = storage.newStore(oldCapacity * 2);
+			hasher = cuckoo.updateHasher(hasher, store.capacity());
+			Cuckoo<E>.Access access = cuckoo.access(store, hasher);
+			for (int j = 0; j < oldCapacity; j++) {
+				E t = oldStore.get(j);
+				if (t != null) access.add(t);
+			}
+		}
 	}
 	
 	@Override
@@ -139,95 +143,5 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 			}
 		};
 	}
-	
-	private boolean insert(E e, int oldIndex, int retryCount) {
-//		System.out.println("inserting " + e + " from " + oldIndex + " (" + retryCount + ")");
-		int[] hashes = hashes(e);
-		// first check e not present
-		int firstNull = -1;
-		for (int i = 0; i < HASH_COUNT; i++) {
-			int h = hashes[i];
-			E e2 = store.get(h);
-			if (oldIndex == -1) {
-				// on the first pass, the value may not already by present
-				if (e2 == null) {
-					if (firstNull == -1) firstNull = h;
-				} else {
-					if (equ.isEquivalent(e, e2)) return false;
-				}
-			} else {
-				// we know the value already there, just looking for nulls
-				if (e2 == null) {
-					firstNull = i;
-					break;
-				}
-			}
-		}
-		// easy case - we have a null
-		if (firstNull != -1) {
-			store.set(firstNull, e);
-			return true;
-		}
 
-		// there's work to do to find a slot
-		int i = random.nextInt(HASH_COUNT);
-		int h = hashes[i];
-		E e2 = store.get(h);
-		store.set(h, e);
-
-		if (retryCount < RETRY_LIMIT) {
-			insert(e2, h, retryCount + 1);
-			return true;
-		}
-
-		// this has gone on too long, enlarge the backing store;
-		Store<E> oldStore = store;
-		int oldCapacity = oldStore.capacity();
-		store = storage.newStore(oldCapacity * 2);
-		hasher = deriveHasher();
-		for (int j = 0; j < oldCapacity; j++) {
-			E t = oldStore.get(j);
-			if (t != null) insert(t, -1, 0);
-		}
-		insert(e2, -1, 0);
-		return true;
-	}
-
-	private Hasher<E> deriveHasher() {
-		return basis.sized(HashSize.fromInt(store.capacity()));
-	}
-	
-	@SuppressWarnings("unchecked")
-	private int indexOf(Object o) {
-		if (o == null) return -1;
-		// we don't really have a way of avoiding these possible exceptions
-		try {
-			return checkedIndexOf( (E) o );
-		} catch (ClassCastException|IllegalArgumentException e ) {
-			return -1;
-		}
-	}
-	
-	private int checkedIndexOf(E e) {
-		if (e == null) throw new IllegalArgumentException("null e");
-		HashCode hash = hasher.hash(e);
-		for (int i = 0; i < HASH_COUNT; i++) {
-			int index = hash.intValue();
-			if (check(index, e)) return index;
-		}
-		return -1;
-	}
-	
-	private int[] hashes(E e) {
-		HashCode hash = hasher.hash(e);
-		for (int i = 0; i < HASH_COUNT; i++) {
-			hashes[i] = hash.intValue();
-		}
-		return hashes;
-	}
-	
-	private boolean check(int i, E e) {
-		E e2 = store.get(i);
-		return e2 != null && equ.isEquivalent(e, e2);
-	}
 }

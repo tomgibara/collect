@@ -36,7 +36,7 @@ public class Equivalence<E> {
 		}
 		
 		public EquivalenceSet<E> newSet() {
-			return new EquivalenceSet<E>(new Random(), equ, storage, DEFAULT_CAPACITY);
+			return new EquivalenceSet<E>(new Cuckoo<>(new Random(), equ), storage, DEFAULT_CAPACITY);
 		}
 
 	}
