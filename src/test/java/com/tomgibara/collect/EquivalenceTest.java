@@ -59,7 +59,7 @@ public class EquivalenceTest extends TestCase {
 
 	public void testModuloSet() {
 		for (StorageType storageType : StorageType.values()) {
-			for (int n = 1; n <= 128; n++) {
+			for (int n = 1; n <= 64; n++) {
 				testModuloSet(n, storageType);
 			}
 		}
@@ -119,7 +119,7 @@ public class EquivalenceTest extends TestCase {
 
 	public void testModuloMap() {
 		for (StorageType storageType : StorageType.values()) {
-			for (int n = 1; n <= 128; n++) {
+			for (int n = 1; n <= 64; n++) {
 				testModuloMap(n, storageType);
 			}
 		}
@@ -180,5 +180,21 @@ public class EquivalenceTest extends TestCase {
 			assertEquals(Math.max(0, n - i - 1), map.size());
 		}
 
+		map.put(0, "X");
+		map.keySet().remove(0);
+		assertFalse(map.containsKey(0));
+		
+		map.put(0, "X");
+		map.entrySet().iterator().next().setValue("Y");
+		assertEquals("Y", map.get(0));
+	
+		map.put(n/2, "A");
+		map.replace(n/2, "X", "B");
+		assertFalse(map.values().contains("B"));
+		map.replace(n/2, "A", "B");
+		assertTrue(map.values().contains("B"));
+		map.values().remove("B");
+		assertFalse(map.containsKey(n/2));
+		assertFalse(map.containsValue("B"));
 	}
 }
