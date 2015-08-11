@@ -43,8 +43,8 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 		this.valueStorage = that.valueStorage;
 		this.equ = that.equ;
 		this.hasher = cuckoo.updateHasher(that.hasher, keyStore.capacity());
-		this.keyStore = that.keyStore;
-		this.valueStore = that.valueStore;
+		this.keyStore = keyStore;
+		this.valueStore = valueStore;
 	}
 
 	@Override

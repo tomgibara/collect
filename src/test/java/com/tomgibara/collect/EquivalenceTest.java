@@ -1,13 +1,19 @@
 package com.tomgibara.collect;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+
+import org.junit.Ignore;
+import org.junit.Test;
+
+import junit.framework.TestCase;
 
 import com.tomgibara.hashing.HashCode;
 import com.tomgibara.hashing.HashSize;
 import com.tomgibara.hashing.Hasher;
-
-import junit.framework.TestCase;
 
 public class EquivalenceTest extends TestCase {
 
@@ -50,27 +56,28 @@ public class EquivalenceTest extends TestCase {
 
 		};
 	}
-	
-	public void testModulo() {
+
+	public void testModuloSet() {
 		for (StorageType storageType : StorageType.values()) {
 			for (int n = 1; n <= 128; n++) {
-				testModulo(n, storageType);
+				testModuloSet(n, storageType);
 			}
 		}
 	}
 	
-	private void testModulo(int n, StorageType s) {
+	private void testModuloSet(int n, StorageType s) {
 		Equivalence<Integer> equivalence = Collect.equivalence(modulo(n));
 		EquivalenceSet<Integer> set;
 		switch (s) {
 		case GENERIC:
 			set = equivalence.setsWithGenericStorage().newSet(); break;
 		case OBJECT:
-			set = equivalence.setsWithTypedStorage(int.class).newSet(); break;
-		case PRIMITIVE:
 			set = equivalence.setsWithTypedStorage(Integer.class).newSet(); break;
+		case PRIMITIVE:
+			set = equivalence.setsWithTypedStorage(int.class).newSet(); break;
 			default: throw new IllegalStateException();
 		}
+		assertTrue(set.isEmpty());
 		for (int i = 0; i < 2 * n; i++) {
 			assertEquals(i >= n, set.contains(i));
 			set.add(i);
@@ -109,5 +116,69 @@ public class EquivalenceTest extends TestCase {
 			assertEquals(Math.max(0, n - i - 1), set.size());
 		}
 	}
-	
+
+	public void testModuloMap() {
+		for (StorageType storageType : StorageType.values()) {
+			for (int n = 1; n <= 128; n++) {
+				testModuloMap(n, storageType);
+			}
+		}
+	}
+
+	private void testModuloMap(int n, StorageType s) {
+		Equivalence<Integer> equivalence = Collect.equivalence(modulo(n));
+		EquivalenceMap<Integer, String> map;
+		switch (s) {
+		case GENERIC:
+			map = equivalence.setsWithGenericStorage().mappedToTypedStorage(String.class).newMap(); break;
+		case OBJECT:
+			map = equivalence.setsWithTypedStorage(Integer.class).mappedToTypedStorage(String.class).newMap(); break;
+		case PRIMITIVE:
+			map = equivalence.setsWithTypedStorage(int.class).mappedToTypedStorage(String.class).newMap(); break;
+			default: throw new IllegalStateException();
+		}
+		assertTrue(map.isEmpty());
+		for (int i = 0; i < 2 * n; i++) {
+			assertEquals(i >= n, map.containsKey(i));
+			String value = Integer.toString(i);
+			map.put(i, value);
+			assertTrue(map.containsKey(i));
+			assertTrue(map.containsValue(value));
+			assertEquals(Math.min(i + 1, n), map.size());
+
+			
+			Map<Integer, String> check = new HashMap<Integer, String>();
+			for (Entry<Integer,String> e : map.entrySet()) {
+				check.put(e.getKey(), e.getValue());
+			}
+			assertFalse(map.containsKey(null));
+			assertFalse(map.containsValue(null));
+			assertEquals(map.size(), check.size());
+			assertEquals(map, check);
+			assertEquals(check, map);
+
+			EquivalenceMap<Integer, String> mv = map.mutableView();
+			assertTrue(mv.containsKey(i));
+			assertNotNull(mv.remove(i));
+			assertFalse(map.containsKey(i));
+			assertNull(mv.put(i, value));
+			assertTrue(map.containsKey(i));
+
+			try {
+				EquivalenceMap<Integer, String> imv = map.immutableView();
+				assertTrue(imv.containsKey(i));
+				imv.put(i, "Oops!");
+				fail();
+			} catch (IllegalStateException e) {
+				/* expected */
+			}
+		}
+
+		for (int i = 0; i < 2 * n; i++) {
+			assertEquals(i < n, map.containsKey(i));
+			assertEquals(i < n, map.remove(i) != null);
+			assertEquals(Math.max(0, n - i - 1), map.size());
+		}
+
+	}
 }
