@@ -214,7 +214,7 @@ public final class TokenMap<V> extends AbstractMap<String, V> implements Mutabil
 		return -1;
 	}
 
-	private class Keys extends AbstractSet<String> {
+	private final class Keys extends AbstractSet<String> {
 		
 		@Override
 		public int size() {
@@ -257,7 +257,7 @@ public final class TokenMap<V> extends AbstractMap<String, V> implements Mutabil
 		}
 	}
 	
-	final private class Values extends AbstractCollection<V> {
+	private final class Values extends AbstractCollection<V> {
 
 		@Override
 		public int size() {
@@ -299,7 +299,7 @@ public final class TokenMap<V> extends AbstractMap<String, V> implements Mutabil
 
 	}
 	
-	final private class Entries extends AbstractSet<Entry<String, V>> {
+	private final class Entries extends AbstractSet<Entry<String, V>> {
 		
 		@Override
 		public int size() {

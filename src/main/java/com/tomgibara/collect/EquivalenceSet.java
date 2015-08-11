@@ -2,16 +2,13 @@ package com.tomgibara.collect;
 
 import java.util.AbstractSet;
 import java.util.Iterator;
-import java.util.Random;
 
-import com.tomgibara.hashing.HashCode;
-import com.tomgibara.hashing.HashSize;
 import com.tomgibara.hashing.Hasher;
 import com.tomgibara.storage.Mutability;
 import com.tomgibara.storage.Storage;
 import com.tomgibara.storage.Store;
 
-public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<EquivalenceSet<E>> {
+public final class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<EquivalenceSet<E>> {
 
 	// fields
 	
@@ -30,7 +27,6 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 	}
 
 	private EquivalenceSet(EquivalenceSet<E> that, Store<E> store) {
-		// we have to copy because hasher is mutable
 		this.cuckoo = that.cuckoo;
 		this.storage = that.storage;
 		this.store = store;
@@ -116,8 +112,9 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 	public boolean add(E e) {
 		if (e == null) throw new IllegalArgumentException("null e");
 		if (!store.isMutable()) throw new IllegalStateException("immutable");
+		Cuckoo<E>.Access access = cuckoo.access(store, hasher);
 		while (true) {
-			Object result = cuckoo.access(store, hasher).add(e);
+			Object result = access.add(e);
 			if (result == Cuckoo.SUCCESS) return true;
 			if (result == Cuckoo.FAILURE) return false;
 
@@ -126,7 +123,7 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 			int oldCapacity = oldStore.capacity();
 			store = storage.newStore(oldCapacity * 2);
 			hasher = cuckoo.updateHasher(hasher, store.capacity());
-			Cuckoo<E>.Access access = cuckoo.access(store, hasher);
+			access = cuckoo.access(store, hasher);
 			for (int j = 0; j < oldCapacity; j++) {
 				E t = oldStore.get(j);
 				if (t != null) access.add(t);
