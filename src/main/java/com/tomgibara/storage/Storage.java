@@ -1,4 +1,5 @@
-package com.tomgibara.collect;
+package com.tomgibara.storage;
+
 
 public interface Storage<T> {
 

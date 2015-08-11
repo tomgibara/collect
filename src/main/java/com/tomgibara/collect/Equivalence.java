@@ -1,5 +1,7 @@
 package com.tomgibara.collect;
 
+import com.tomgibara.storage.Storage;
+
 public class Equivalence<E> {
 
 	private final EquRel<E> equ;

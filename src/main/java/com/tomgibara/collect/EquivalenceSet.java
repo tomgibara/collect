@@ -7,6 +7,8 @@ import java.util.Random;
 import com.tomgibara.hashing.HashCode;
 import com.tomgibara.hashing.HashSize;
 import com.tomgibara.hashing.Hasher;
+import com.tomgibara.storage.Mutability;
+import com.tomgibara.storage.Store;
 
 public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<EquivalenceSet<E>> {
 

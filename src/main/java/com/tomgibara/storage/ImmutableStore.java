@@ -1,4 +1,4 @@
-package com.tomgibara.collect;
+package com.tomgibara.storage;
 
 class ImmutableStore<V> implements Store<V> {
 

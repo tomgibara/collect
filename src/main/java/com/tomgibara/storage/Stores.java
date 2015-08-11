@@ -1,4 +1,4 @@
-package com.tomgibara.collect;
+package com.tomgibara.storage;
 
 import java.lang.reflect.Array;
 

@@ -10,6 +10,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import com.tomgibara.hashing.Hasher;
+import com.tomgibara.storage.Mutability;
+import com.tomgibara.storage.Store;
 
 public final class TokenMap<V> extends AbstractMap<String, V> implements Mutability<TokenMap<V>> {
 

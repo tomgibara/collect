@@ -1,4 +1,4 @@
-package com.tomgibara.collect;
+package com.tomgibara.storage;
 
 
 public interface Store<V> extends Mutability<Store<V>> {

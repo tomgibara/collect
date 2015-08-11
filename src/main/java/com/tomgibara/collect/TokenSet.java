@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 
 import com.tomgibara.bits.BitVector;
 import com.tomgibara.hashing.Hasher;
+import com.tomgibara.storage.Mutability;
 
 public final class TokenSet extends AbstractSet<String> implements Mutability<TokenSet> {
 

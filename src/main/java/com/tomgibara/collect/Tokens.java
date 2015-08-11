@@ -1,6 +1,7 @@
 package com.tomgibara.collect;
 
 import com.tomgibara.hashing.Hasher;
+import com.tomgibara.storage.Storage;
 
 public final class Tokens {
 

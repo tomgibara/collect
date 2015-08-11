@@ -3,6 +3,8 @@ package com.tomgibara.collect;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import com.tomgibara.storage.Store;
+
 abstract class StoreIterator<V, E> implements Iterator<E> {
 
 	final Store<V> store;
