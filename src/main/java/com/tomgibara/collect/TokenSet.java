@@ -117,6 +117,7 @@ public final class TokenSet extends AbstractSet<String> implements Mutability<To
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T> T[] toArray(T[] a) {
 		int length = bits.countOnes();
 		Object[] array;

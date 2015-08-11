@@ -6,10 +6,12 @@ import com.tomgibara.hashing.Hashing;
 
 public interface EquRel<E> {
 
+	@SuppressWarnings("unchecked")
 	public static <E> EquRel<E> equality() {
 		return (EquRel<E>) EquRels.EQUALITY;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <E> EquRel<E> identity() {
 		return (EquRel<E>) EquRels.IDENTITY;
 	}

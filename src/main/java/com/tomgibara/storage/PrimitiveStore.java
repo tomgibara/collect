@@ -16,6 +16,7 @@ abstract class PrimitiveStore<V> implements Store<V> {
 	private static final int BOOLEAN = 12;
 
 	
+	@SuppressWarnings("unchecked")
 	static <V> PrimitiveStore<V> newStore(Class<V> type, int capacity) {
 		switch((type.getName().hashCode() >> 8) & 0xf) {
 		case BYTE:    return (PrimitiveStore<V>) new ByteStore     (capacity);

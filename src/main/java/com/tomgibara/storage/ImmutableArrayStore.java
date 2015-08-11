@@ -18,6 +18,7 @@ final class ImmutableArrayStore<V> implements Store<V> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Class<? extends V> valueType() {
 		return (Class<? extends V>) values.getClass().getComponentType();
 	}

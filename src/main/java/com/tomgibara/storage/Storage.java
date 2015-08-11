@@ -3,6 +3,7 @@ package com.tomgibara.storage;
 
 public interface Storage<T> {
 
+	@SuppressWarnings("unchecked")
 	static <T> Storage<T> generic() {
 		return size -> (Store<T>) new ArrayStore<>(new Object[size]);
 	}

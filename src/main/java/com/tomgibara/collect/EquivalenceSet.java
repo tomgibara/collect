@@ -187,6 +187,7 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 		return hasher = basis.sized(HashSize.fromInt(store.capacity()));
 	}
 	
+	@SuppressWarnings("unchecked")
 	private int indexOf(Object o) {
 		if (o == null) return -1;
 		// we don't really have a way of avoiding these possible exceptions

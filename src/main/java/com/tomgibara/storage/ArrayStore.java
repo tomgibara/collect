@@ -8,6 +8,7 @@ class ArrayStore<V> implements Store<V> {
 	final V[] values;
 	int size;
 	
+	@SuppressWarnings("unchecked")
 	ArrayStore(Class<V> type, int capacity) {
 		values = (V[]) Array.newInstance(type, capacity);
 		size = 0;
@@ -24,6 +25,7 @@ class ArrayStore<V> implements Store<V> {
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public Class<? extends V> valueType() {
 		return (Class<? extends V>) values.getClass().getComponentType();
 	}
