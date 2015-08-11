@@ -33,6 +33,16 @@ final class ImmutableArrayStore<V> implements Store<V> {
 		return new ArrayStore<>(Arrays.copyOf(values, newCapacity), size);
 	}
 	
+	@Override
+	public V set(int index, V value) {
+		throw new IllegalStateException("immutable");
+	}
+	
+	@Override
+	public void clear() {
+		throw new IllegalStateException("immutable");
+	}
+	
 	// mutability
 	
 	@Override

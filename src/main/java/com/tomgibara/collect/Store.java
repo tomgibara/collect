@@ -11,9 +11,9 @@ public interface Store<V> extends Mutability<Store<V>> {
 	
 	V get(int index);
 	
-	default V set(int index, V value) { throw new UnsupportedOperationException(); }
+	V set(int index, V value);
 	
-	default void clear() { throw new UnsupportedOperationException(); }
+	void clear();
 	
 	// returns a mutable detached copy
 	default Store<V> withCapacity(int newCapacity) {

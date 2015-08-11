@@ -1,5 +1,8 @@
 package com.tomgibara.collect;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.tomgibara.hashing.HashCode;
 import com.tomgibara.hashing.HashSize;
 import com.tomgibara.hashing.Hasher;
@@ -73,6 +76,15 @@ public class EquivalenceTest extends TestCase {
 			set.add(i);
 			assertTrue(set.contains(i));
 			assertEquals(Math.min(i + 1, n), set.size());
+
+			
+			Set<Integer> check = new HashSet<Integer>();
+			for (Integer e : set) {
+				check.add(e);
+			}
+			assertFalse(check.contains(null));
+			assertEquals(set.size(), check.size());
+			assertEquals(set, check);
 
 			EquivalenceSet<Integer> mv = set.mutableView();
 			assertTrue(mv.contains(i));

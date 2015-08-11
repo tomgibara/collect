@@ -37,6 +37,16 @@ class ImmutableStore<V> implements Store<V> {
 	public Store<V> withCapacity(int newCapacity) {
 		return store.withCapacity(newCapacity);
 	}
+	
+	@Override
+	public V set(int index, V value) {
+		throw new IllegalStateException("immutable");
+	}
+	
+	@Override
+	public void clear() {
+		throw new IllegalStateException("immutable");
+	}
 
 	@Override
 	public Store<V> immutableView() {
