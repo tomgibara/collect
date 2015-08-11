@@ -1,5 +1,7 @@
 package com.tomgibara.collect;
 
+import java.util.Random;
+
 import com.tomgibara.storage.Storage;
 
 public class Equivalence<E> {
@@ -34,7 +36,7 @@ public class Equivalence<E> {
 		}
 		
 		public EquivalenceSet<E> newSet() {
-			return new EquivalenceSet<E>(equ, storage.newStore(DEFAULT_CAPACITY));
+			return new EquivalenceSet<E>(new Random(), equ, storage, DEFAULT_CAPACITY);
 		}
 
 	}

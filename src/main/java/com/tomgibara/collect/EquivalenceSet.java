@@ -8,6 +8,7 @@ import com.tomgibara.hashing.HashCode;
 import com.tomgibara.hashing.HashSize;
 import com.tomgibara.hashing.Hasher;
 import com.tomgibara.storage.Mutability;
+import com.tomgibara.storage.Storage;
 import com.tomgibara.storage.Store;
 
 public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<EquivalenceSet<E>> {
@@ -19,20 +20,32 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 	
 	// fields
 	
-	private final Random random = new Random();
 	private final int[] hashes = new int[HASH_COUNT];
+	private final Random random;
+	private final EquRel<E> equ;
+	private final Storage<E> storage;
 	private final Hasher<E> basis;
-	private EquRel<E> equ;
 	private Store<E> store;
 	private Hasher<E> hasher;
 	
 	// constructors
 	
-	EquivalenceSet(EquRel<E> equ, Store<E> store) {
+	EquivalenceSet(Random random, EquRel<E> equ, Storage<E> storage, int initialCapacity) {
+		this.random = random;
 		this.equ = equ;
-		this.store = store;
+		this.storage = storage;
 		basis = equ.getHasher().ints();
-		updateHasher();
+		store = storage.newStore(initialCapacity);
+		hasher = deriveHasher();
+	}
+
+	private EquivalenceSet(EquivalenceSet<E> that, Store<E> store) {
+		this.random = that.random;
+		this.equ = that.equ;
+		this.storage = that.storage;
+		this.basis = that.basis;
+		this.store = store;
+		hasher = that.hasher.getSize().asInt() == store.capacity() ? that.hasher : deriveHasher();
 	}
 
 	// accessors
@@ -60,23 +73,23 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 	
 	@Override
 	public EquivalenceSet<E> mutableCopy() {
-		return new EquivalenceSet<>(equ, store.mutableCopy());
+		return new EquivalenceSet<>(this, store.mutableCopy());
 	}
 	
 	@Override
 	public EquivalenceSet<E> immutableCopy() {
-		return new EquivalenceSet<>(equ, store.immutableCopy());
+		return new EquivalenceSet<>(this, store.immutableCopy());
 	}
 	
 	@Override
 	public EquivalenceSet<E> mutableView() {
 		if (!store.isMutable()) throw new IllegalStateException("Cannot take a mutable view of an immutable set");
-		return new EquivalenceSet<>(equ, store);
+		return new EquivalenceSet<>(this, store);
 	}
 	
 	@Override
 	public EquivalenceSet<E> immutableView() {
-		return new EquivalenceSet<>(equ, store.immutable());
+		return new EquivalenceSet<>(this, store.immutable());
 	}
 
 	// set
@@ -170,11 +183,8 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 		// this has gone on too long, enlarge the backing store;
 		Store<E> oldStore = store;
 		int oldCapacity = oldStore.capacity();
-		//TODO need a more efficient way of doing this
-		// perhaps stores could keep a reference to their storage?
-		store = store.withCapacity(oldCapacity * 2);
-		store.clear();
-		updateHasher();
+		store = storage.newStore(oldCapacity * 2);
+		hasher = deriveHasher();
 		for (int j = 0; j < oldCapacity; j++) {
 			E t = oldStore.get(j);
 			if (t != null) insert(t, -1, 0);
@@ -183,8 +193,8 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 		return true;
 	}
 
-	private Hasher<E> updateHasher() {
-		return hasher = basis.sized(HashSize.fromInt(store.capacity()));
+	private Hasher<E> deriveHasher() {
+		return basis.sized(HashSize.fromInt(store.capacity()));
 	}
 	
 	@SuppressWarnings("unchecked")
