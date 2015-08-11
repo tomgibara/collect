@@ -38,8 +38,43 @@ public class Equivalence<E> {
 		public EquivalenceSet<E> newSet() {
 			return new EquivalenceSet<E>(new Cuckoo<>(new Random(), equ), storage, DEFAULT_CAPACITY);
 		}
+		
+		public <V> Maps<V> mappedToGenericStorage() {
+			return new Maps<>(storage, Storage.generic());
+		}
+
+		public <V> Maps<V> mappedToTypedStorage(Class<V> type) {
+			return new Maps<>(storage, Storage.typed(type));
+		}
+
+		public <V> Maps<V> mappedToStorage(Storage<V> valueStorage) {
+			if (valueStorage == null) throw new IllegalArgumentException("null valueStorage");
+			return new Maps<>(storage, valueStorage);
+		}
 
 	}
 	
-	
+	public final class Maps<V> {
+
+		private static final int DEFAULT_CAPACITY = 16;
+
+		private final Storage<E> keyStorage;
+		private final Storage<V> valueStorage;
+
+		Maps(Storage<E> keyStorage, Storage<V> valueStorage) {
+			this.keyStorage = keyStorage;
+			this.valueStorage = valueStorage;
+		}
+
+		public EquivalenceMap<E, V> newMap() {
+			return new EquivalenceMap<E, V>(new Cuckoo<>(new Random(), equ), keyStorage, valueStorage, EquRel.equality(), DEFAULT_CAPACITY);
+		}
+
+		public EquivalenceMap<E, V> newMapWithValueEquivalence(EquRel<V> valueEqu) {
+			if (valueEqu == null) throw new IllegalArgumentException("null valueEqu");
+			return new EquivalenceMap<E, V>(new Cuckoo<>(new Random(), equ), keyStorage, valueStorage, valueEqu, DEFAULT_CAPACITY);
+		}
+
+	}
+
 }
