@@ -32,6 +32,11 @@ class ImmutableStore<V> implements Store<V> {
 	public V get(int index) {
 		return store.get(index);
 	}
+	
+	@Override
+	public Store<V> withCapacity(int newCapacity) {
+		return store.withCapacity(newCapacity);
+	}
 
 	@Override
 	public Store<V> immutableView() {

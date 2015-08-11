@@ -13,6 +13,6 @@ public interface Storage<T> {
 				(size -> new ArrayStore<>(type, size));
 	}
 	
-	Store<T> newStore(int size);
+	Store<T> newStore(int capacity);
 	
 }

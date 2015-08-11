@@ -8,8 +8,8 @@ class ArrayStore<V> implements Store<V> {
 	final V[] values;
 	int size;
 	
-	ArrayStore(Class<V> type, int size) {
-		values = (V[]) Array.newInstance(type, size);
+	ArrayStore(Class<V> type, int capacity) {
+		values = (V[]) Array.newInstance(type, capacity);
 		size = 0;
 	}
 	

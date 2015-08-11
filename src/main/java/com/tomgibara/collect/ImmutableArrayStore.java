@@ -1,5 +1,7 @@
 package com.tomgibara.collect;
 
+import java.util.Arrays;
+
 final class ImmutableArrayStore<V> implements Store<V> {
 
 	private final V[] values;
@@ -26,6 +28,11 @@ final class ImmutableArrayStore<V> implements Store<V> {
 	@Override
 	public V get(int index) { return values[index]; }
 
+	@Override
+	public Store<V> withCapacity(int newCapacity) {
+		return new ArrayStore<>(Arrays.copyOf(values, newCapacity), size);
+	}
+	
 	// mutability
 	
 	@Override

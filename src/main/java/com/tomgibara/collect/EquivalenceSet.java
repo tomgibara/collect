@@ -18,7 +18,8 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 	// fields
 	
 	private final Random random = new Random();
-	private int[] hashes = new int[HASH_COUNT];
+	private final int[] hashes = new int[HASH_COUNT];
+	private final Hasher<E> basis;
 	private EquRel<E> equ;
 	private Store<E> store;
 	private Hasher<E> hasher;
@@ -28,7 +29,8 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 	EquivalenceSet(EquRel<E> equ, Store<E> store) {
 		this.equ = equ;
 		this.store = store;
-		hasher = equ.getHasher().ints().sized(HashSize.fromInt(store.capacity()));
+		basis = equ.getHasher().ints();
+		updateHasher();
 	}
 
 	// accessors
@@ -89,6 +91,7 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 	
 	@Override
 	public boolean remove(Object o) {
+		if (!store.isMutable()) throw new IllegalStateException("immutable");
 		int i = indexOf(o);
 		if (i == -1) return false;
 		store.set(i, null);
@@ -108,6 +111,7 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 	@Override
 	public boolean add(E e) {
 		if (e == null) throw new IllegalArgumentException("null e");
+		if (!store.isMutable()) throw new IllegalStateException("immutable");
 		return insert(e, -1, 0);
 	}
 	
@@ -122,6 +126,7 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 	}
 	
 	private boolean insert(E e, int oldIndex, int retryCount) {
+//		System.out.println("inserting " + e + " from " + oldIndex + " (" + retryCount + ")");
 		int[] hashes = hashes(e);
 		// first check e not present
 		int firstNull = -1;
@@ -131,7 +136,7 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 			if (oldIndex == -1) {
 				// on the first pass, the value may not already by present
 				if (e2 == null) {
-					if (firstNull != -1) firstNull = h;
+					if (firstNull == -1) firstNull = h;
 				} else {
 					if (equ.isEquivalent(e, e2)) return false;
 				}
@@ -152,14 +157,32 @@ public class EquivalenceSet<E> extends AbstractSet<E> implements Mutability<Equi
 		// there's work to do to find a slot
 		int i = random.nextInt(HASH_COUNT);
 		int h = hashes[i];
-		E e2 = store.get(i);
+		E e2 = store.get(h);
 		store.set(h, e);
-		if (retryCount == RETRY_LIMIT) {
-			//TODO need to grow table
+
+		if (retryCount < RETRY_LIMIT) {
+			insert(e2, h, retryCount + 1);
+			return true;
 		}
 
-		insert(e2, h, retryCount++);
+		// this has gone on too long, enlarge the backing store;
+		Store<E> oldStore = store;
+		int oldCapacity = oldStore.capacity();
+		//TODO need a more efficient way of doing this
+		// perhaps stores could keep a reference to their storage?
+		store = store.withCapacity(oldCapacity * 2);
+		store.clear();
+		updateHasher();
+		for (int j = 0; j < oldCapacity; j++) {
+			E t = oldStore.get(j);
+			if (t != null) insert(t, -1, 0);
+		}
+		insert(e2, -1, 0);
 		return true;
+	}
+
+	private Hasher<E> updateHasher() {
+		return hasher = basis.sized(HashSize.fromInt(store.capacity()));
 	}
 	
 	private int indexOf(Object o) {

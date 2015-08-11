@@ -15,6 +15,11 @@ public interface Store<V> extends Mutability<Store<V>> {
 	
 	default void clear() { throw new UnsupportedOperationException(); }
 	
+	// returns a mutable detached copy
+	default Store<V> withCapacity(int newCapacity) {
+		return new ArrayStore<>(Stores.toArray(this, newCapacity), size());
+	}
+
 	@Override
 	default Store<V> mutable() {
 		return isMutable() ? this : mutableCopy();
@@ -35,5 +40,4 @@ public interface Store<V> extends Mutability<Store<V>> {
 		return new ImmutableArrayStore<>(Stores.toArray(this), size());
 	}
 
-	
 }
