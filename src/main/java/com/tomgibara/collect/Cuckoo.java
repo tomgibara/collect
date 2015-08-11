@@ -122,7 +122,7 @@ final class Cuckoo<E> {
 			}
 		}
 		
-		private int checkedIndexOf(E e) {
+		int checkedIndexOf(E e) {
 			if (e == null) throw new IllegalArgumentException("null e");
 			HashCode hash = hasher.hash(e);
 			for (int i = 0; i < HASH_COUNT; i++) {
