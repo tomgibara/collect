@@ -136,9 +136,7 @@ public final class TokenMap<V> extends AbstractMap<String, V> implements Mutabil
 	public V put(String key, V value) {
 		if (value == null) throw new IllegalArgumentException("null value");
 		int i = checkedIndexOf(key);
-		V previous = store.get(i);
-		store.set(i, value);
-		return previous;
+		return store.set(i, value);
 	}
 
 	@Override
@@ -375,9 +373,7 @@ public final class TokenMap<V> extends AbstractMap<String, V> implements Mutabil
 		@Override
 		public V setValue(V value) {
 			if (value == null) throw new IllegalArgumentException("null value");
-			V previous = store.get(index);
-			store.set(index, value);
-			return previous;
+			return store.set(index, value);
 		}
 
 	}

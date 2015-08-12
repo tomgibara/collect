@@ -208,8 +208,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 			Object result = access.add(k);
 			if (result == Cuckoo.SUCCESS) {
 				int index = access.indexOf(key);
-				V previousValue = valueStore.get(index);
-				valueStore.set(index, value);
+				V previousValue = valueStore.set(index, value);
 				return previousValue;
 			}
 			if (result == Cuckoo.FAILURE) {
@@ -434,9 +433,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 		@Override
 		public V setValue(V value) {
 			if (value == null) throw new IllegalArgumentException("null value");
-			V previous = valueStore.get(index);
-			valueStore.set(index, value);
-			return previous;
+			return valueStore.set(index, value);
 		}
 
 	}
