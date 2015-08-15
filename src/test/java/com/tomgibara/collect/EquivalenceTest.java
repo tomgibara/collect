@@ -93,13 +93,6 @@ public class EquivalenceTest extends TestCase {
 			assertEquals(set.size(), check.size());
 			assertEquals(set, check);
 
-			EquivalenceSet<Integer> mv = set.mutableView();
-			assertTrue(mv.contains(i));
-			assertTrue(mv.remove(i));
-			assertFalse(set.contains(i));
-			assertTrue(mv.add(i));
-			assertTrue(set.contains(i));
-
 			try {
 				EquivalenceSet<Integer> imv = set.immutableView();
 				assertTrue(imv.contains(i));
@@ -156,13 +149,6 @@ public class EquivalenceTest extends TestCase {
 			assertEquals(map.size(), check.size());
 			assertEquals(map, check);
 			assertEquals(check, map);
-
-			EquivalenceMap<Integer, String> mv = map.mutableView();
-			assertTrue(mv.containsKey(i));
-			assertNotNull(mv.remove(i));
-			assertFalse(map.containsKey(i));
-			assertNull(mv.put(i, value));
-			assertTrue(map.containsKey(i));
 
 			try {
 				EquivalenceMap<Integer, String> imv = map.immutableView();

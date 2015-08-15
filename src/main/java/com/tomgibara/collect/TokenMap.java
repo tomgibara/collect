@@ -45,12 +45,6 @@ public final class TokenMap<V> extends AbstractMap<String, V> implements Mutabil
 	}
 	
 	@Override
-	public TokenMap<V> mutableView() {
-		if (!store.isMutable()) throw new IllegalStateException("Cannot take a mutable view of an immutable map");
-		return new TokenMap<>(strings, hasher, store);
-	}
-	
-	@Override
 	public TokenMap<V> immutableCopy() {
 		return new TokenMap<>(strings, hasher, store.immutableCopy());
 	}

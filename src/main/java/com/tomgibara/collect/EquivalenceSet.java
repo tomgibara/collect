@@ -67,12 +67,6 @@ public final class EquivalenceSet<E> extends AbstractSet<E> implements Mutabilit
 	}
 	
 	@Override
-	public EquivalenceSet<E> mutableView() {
-		if (!store.isMutable()) throw new IllegalStateException("Cannot take a mutable view of an immutable set");
-		return new EquivalenceSet<>(this, store);
-	}
-	
-	@Override
 	public EquivalenceSet<E> immutableView() {
 		return new EquivalenceSet<>(this, store.immutable());
 	}

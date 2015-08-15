@@ -187,12 +187,6 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 	}
 	
 	@Override
-	public EquivalenceMap<K, V> mutableView() {
-		if (!keyStore.isMutable()) throw new IllegalStateException("Cannot take a mutable view of an immutable map");
-		return new EquivalenceMap<K, V>(this, keyStore, valueStore);
-	}
-	
-	@Override
 	public EquivalenceMap<K, V> immutableView() {
 		return new EquivalenceMap<>(this, keyStore.immutable(), valueStore.immutable());
 	}
