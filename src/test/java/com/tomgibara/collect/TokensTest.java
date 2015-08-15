@@ -96,9 +96,7 @@ public class TokensTest extends TestCase {
 		} catch (IllegalStateException e) {
 			/* expected */
 		}
-		TokenSet mut = set.mutableView();
-		assertNotSame(set, mut);
-		mut.add("white");
+		set.add("white");
 		assertTrue(set.isFull());
 		TokenSet cpy = set.mutableCopy();
 		cpy.clear();
