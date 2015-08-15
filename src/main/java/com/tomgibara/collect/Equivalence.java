@@ -1,5 +1,6 @@
 package com.tomgibara.collect;
 
+import java.util.Collection;
 import java.util.Random;
 
 import com.tomgibara.storage.Storage;
@@ -39,6 +40,22 @@ public class Equivalence<E> {
 			return new EquivalenceSet<E>(new Cuckoo<>(new Random(), equ), storage, DEFAULT_CAPACITY);
 		}
 		
+		public EquivalenceSet<E> newSet(Collection<? extends E> es) {
+			if (es == null) throw new IllegalArgumentException("null es");
+			int capacity;
+			int size = es.size();
+			if (size < 2) {
+				capacity = size;
+			} else if (size < 10) {
+				capacity = size + 2;
+			} else {
+				capacity = Math.round(es.size() * 1.2f);
+			}
+			EquivalenceSet<E> set = new EquivalenceSet<E>(new Cuckoo<>(new Random(), equ), storage, capacity);
+			set.addAll(es);
+			return set;
+		}
+
 		public <V> Maps<V> mappedToGenericStorage() {
 			return new Maps<>(storage, Storage.generic());
 		}
