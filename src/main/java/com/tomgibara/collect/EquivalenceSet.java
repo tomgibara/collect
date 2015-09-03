@@ -3,8 +3,8 @@ package com.tomgibara.collect;
 import java.util.AbstractSet;
 import java.util.Iterator;
 
+import com.tomgibara.fundament.Mutability;
 import com.tomgibara.hashing.Hasher;
-import com.tomgibara.storage.Mutability;
 import com.tomgibara.storage.Storage;
 import com.tomgibara.storage.Store;
 

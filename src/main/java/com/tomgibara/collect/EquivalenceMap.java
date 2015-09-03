@@ -8,8 +8,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import com.tomgibara.fundament.Mutability;
 import com.tomgibara.hashing.Hasher;
-import com.tomgibara.storage.Mutability;
 import com.tomgibara.storage.Storage;
 import com.tomgibara.storage.Store;
 
