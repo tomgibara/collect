@@ -42,14 +42,14 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 		this.keyStorage = that.keyStorage;
 		this.valueStorage = that.valueStorage;
 		this.equ = that.equ;
-		this.hasher = cuckoo.updateHasher(that.hasher, keyStore.capacity());
+		this.hasher = cuckoo.updateHasher(that.hasher, keyStore.size());
 		this.keyStore = keyStore;
 		this.valueStore = valueStore;
 	}
 
 	@Override
 	public boolean containsKey(Object key) {
-		return cuckoo.access(keyStore, hasher).indexOf(key) != -1;
+		return access().indexOf(key) != -1;
 	}
 	
 	@Override
@@ -61,7 +61,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 	
 	@Override
 	public int size() {
-		return keyStore.size();
+		return keyStore.count();
 	}
 	
 	@Override
@@ -76,13 +76,13 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 	
 	@Override
 	public V get(Object key) {
-		int i = cuckoo.access(keyStore, hasher).indexOf(key);
+		int i = access().indexOf(key);
 		return i == -1 ? null : valueStore.get(i);
 	}
 	
 	@Override
 	public V getOrDefault(Object key, V defaultValue) {
-		int i = cuckoo.access(keyStore, hasher).indexOf(key);
+		int i = access().indexOf(key);
 		if (i == -1) return defaultValue;
 		V value = valueStore.get(i);
 		return value == null ? defaultValue : value;
@@ -91,7 +91,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 	@Override
 	public V remove(Object key) {
 		checkMutable();
-		int i = cuckoo.access(keyStore, hasher).indexOf(key);
+		int i = access().indexOf(key);
 		if (i == -1) return null;
 		V value = valueStore.get(i);
 		keyStore.set(i, null);
@@ -103,7 +103,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 	public boolean remove(Object key, Object value) {
 		checkMutable();
 		if (value == null) return false;
-		int i = cuckoo.access(keyStore, hasher).indexOf(key);
+		int i = access().indexOf(key);
 		if (i == -1) return false;
 		V previous = valueStore.get(i);
 		if (!previous.equals(value)) return false;
@@ -114,7 +114,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 
 	@Override
 	public V put(K key, V value) {
-		return putImpl(key, value, false);
+		return putImpl(key, value, true);
 	}
 
 	@Override
@@ -126,7 +126,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 	public V replace(K key, V value) {
 		if (value == null) throw new IllegalArgumentException("null value");
 		checkMutable();
-		int i = cuckoo.access(keyStore, hasher).checkedIndexOf(key);
+		int i = access().checkedIndexOf(key);
 		if (i == -1) return null;
 		V previous = valueStore.get(i);
 		valueStore.set(i, value);
@@ -138,7 +138,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 		if (newValue == null) throw new IllegalArgumentException("null value");
 		checkMutable();
 		if (oldValue == null) return false;
-		int i = cuckoo.access(keyStore, hasher).checkedIndexOf(key);
+		int i = access().checkedIndexOf(key);
 		if (i == -1 || !equ.isEquivalent(valueStore.get(i), oldValue)) return false;
 		valueStore.set(i, newValue);
 		return true;
@@ -193,50 +193,38 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 
 	// private helper methods
 
-	private V putImpl(K key, V value, boolean ifAbsent) {
-		if (value == null) throw new IllegalArgumentException("null value");
-		checkMutable();
-		Cuckoo<K>.Access access = cuckoo.access(keyStore, hasher);
-		K k = key;
-		while (true) {
-			Object result = access.add(k);
-			if (result == Cuckoo.SUCCESS) {
-				int index = access.indexOf(key);
-				V previousValue = valueStore.set(index, value);
-				return previousValue;
-			}
-			if (result == Cuckoo.FAILURE) {
-				if (!ifAbsent) {
-					int index = access.indexOf(key);
-					valueStore.set(index, value);
-				}
-				return null;
-			}
-
-			k = (K) result;
-			Store<K> oldKeyStore = keyStore;
-			Store<V> oldValueStore = valueStore;
-			int oldCapacity = oldKeyStore.capacity();
-			int newCapacity = 2 * oldCapacity;
-			keyStore = keyStorage.newStore(newCapacity);
-			valueStore = valueStorage.newStore(newCapacity);
-			hasher = cuckoo.updateHasher(hasher, newCapacity);
-			access = cuckoo.access(keyStore, hasher);
-			for (int j = 0; j < oldCapacity; j++) {
-				K ko = oldKeyStore.get(j);
-				if (ko != null) {
-					access.add(ko);
-					int index = access.indexOf(ko);
-					V vo = oldValueStore.get(j);
-					valueStore.set(index, vo);
-				}
+	private Cuckoo<K>.Access<V> resize() {
+		Store<K> oldKeyStore = keyStore;
+		Store<V> oldValueStore = valueStore;
+		int oldCapacity = oldKeyStore.size();
+		int newCapacity = 2 * oldCapacity;
+		keyStore = keyStorage.newStore(newCapacity);
+		valueStore = valueStorage.newStore(newCapacity);
+		hasher = cuckoo.updateHasher(hasher, newCapacity);
+		Cuckoo<K>.Access<V> access = access();
+		for (int j = 0; j < oldCapacity; j++) {
+			K ko = oldKeyStore.get(j);
+			if (ko != null) {
+				V vo = oldValueStore.get(j);
+				access.add(ko, vo, false);
 			}
 		}
+		return access;
+	}
+	
+	private Cuckoo<K>.Access<V> access() {
+		return cuckoo.access(keyStore, hasher, this::resize, valueStore);
+	}
+	
+	private V putImpl(K key, V value, boolean overwrite) {
+		if (value == null) throw new IllegalArgumentException("null value");
+		checkMutable();
+		return access().add(key, value, overwrite);
 	}
 
 	private int indexOfValue(Object value) {
 		if (value == null) return -1;
-		int capacity = valueStore.capacity();
+		int capacity = valueStore.size();
 		for (int i = 0; i < capacity; i++) {
 			V candidate = valueStore.get(i);
 			if (candidate != null) try {
@@ -258,12 +246,12 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 		
 		@Override
 		public int size() {
-			return keyStore.size();
+			return keyStore.count();
 		}
 		
 		@Override
 		public boolean isEmpty() {
-			return keyStore.size() == 0;
+			return keyStore.count() == 0;
 		}
 		
 		@Override
@@ -279,7 +267,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 		@Override
 		public boolean remove(Object o) {
 			checkMutable();
-			int i = cuckoo.access(keyStore, hasher).indexOf(o);
+			int i = access().indexOf(o);
 			if (i == -1) return false;
 			keyStore.set(i, null);
 			valueStore.set(i, null);
@@ -288,7 +276,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 		
 		@Override
 		public Iterator<K> iterator() {
-			return new StoreIterator<K, K>(keyStore) {
+			return new StoreIterator<V, K>(valueStore) {
 				@Override
 				K get(int index) {
 					return keyStore.get(index);
@@ -302,12 +290,12 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 
 		@Override
 		public int size() {
-			return valueStore.size();
+			return valueStore.count();
 		}
 		
 		@Override
 		public boolean isEmpty() {
-			return valueStore.size() == 0;
+			return valueStore.count() == 0;
 		}
 		
 		@Override
@@ -346,12 +334,12 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 
 		@Override
 		public int size() {
-			return keyStore.size();
+			return keyStore.count();
 		}
 		
 		@Override
 		public boolean isEmpty() {
-			return keyStore.size() == 0;
+			return keyStore.count() == 0;
 		}
 		
 		@Override
@@ -376,7 +364,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 			Object k = e.getKey();
 			Object v = e.getValue();
 			if (k == null || v == null) return false;
-			int i = cuckoo.access(keyStore, hasher).indexOf(k);
+			int i = access().indexOf(k);
 			if (i == -1) return false;
 			//TODO again... there may be no better way
 			boolean contained;

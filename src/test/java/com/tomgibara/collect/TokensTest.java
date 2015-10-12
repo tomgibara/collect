@@ -54,7 +54,7 @@ public class TokensTest extends TestCase {
 	@Test
 	public void testMap() {
 		Tokens animals = Collect.tokens("ostrich", "dog", "snail", "centipede");
-		Maps<Integer> counts = animals.withTypedStorage(int.class);
+		Maps<Integer> counts = animals.withNullableTypedStorage(int.class);
 		TokenMap<Integer> legs = counts.newMap();
 		assertNull( legs.get("ostrich") );
 		legs.put("ostrich", 2);

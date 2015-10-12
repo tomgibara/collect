@@ -68,7 +68,7 @@ public final class TokenMap<V> extends AbstractMap<String, V> implements Mutabil
 	
 	@Override
 	public int size() {
-		return store.size();
+		return store.count();
 	}
 	
 	@Override
@@ -89,7 +89,7 @@ public final class TokenMap<V> extends AbstractMap<String, V> implements Mutabil
 	
 	@Override
 	public boolean isEmpty() {
-		return store.size() == 0;
+		return store.count() == 0;
 	}
 	
 	@Override
@@ -210,12 +210,12 @@ public final class TokenMap<V> extends AbstractMap<String, V> implements Mutabil
 		
 		@Override
 		public int size() {
-			return store.size();
+			return store.count();
 		}
 		
 		@Override
 		public boolean isEmpty() {
-			return store.size() != 0;
+			return store.count() != 0;
 		}
 		
 		@Override
@@ -253,12 +253,12 @@ public final class TokenMap<V> extends AbstractMap<String, V> implements Mutabil
 
 		@Override
 		public int size() {
-			return store.size();
+			return store.count();
 		}
 		
 		@Override
 		public boolean isEmpty() {
-			return store.size() == 0;
+			return store.count() == 0;
 		}
 		
 		@Override
@@ -295,12 +295,12 @@ public final class TokenMap<V> extends AbstractMap<String, V> implements Mutabil
 		
 		@Override
 		public int size() {
-			return store.size();
+			return store.count();
 		}
 		
 		@Override
 		public boolean isEmpty() {
-			return store.size() == 0;
+			return store.count() == 0;
 		}
 		
 		@Override

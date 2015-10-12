@@ -13,22 +13,21 @@ abstract class StoreIterator<V, E> implements Iterator<E> {
 
 	StoreIterator(Store<V> store) {
 		this.store = store;
-		next = subsequent(previous + 1);
+		next = subsequent(0);
 	}
 	
 	@Override
 	public E next() {
-		if (next == store.capacity()) throw new NoSuchElementException();
+		if (next == store.size()) throw new NoSuchElementException();
 		E x = get(next);
-		int tmp = next;
-		next = subsequent(previous + 1);
-		previous = tmp;
+		previous = next;
+		next = subsequent(next + 1);
 		return x;
 	}
 
 	@Override
 	public boolean hasNext() {
-		return next != store.capacity();
+		return next != store.size();
 	}
 
 	@Override
@@ -37,16 +36,17 @@ abstract class StoreIterator<V, E> implements Iterator<E> {
 		V value = store.get(previous);
 		if (value == null) throw new IllegalStateException();
 		store.set(previous, null);
+		previous = -1;
 	}
 	
 	abstract E get(int index);
 
 	private int subsequent(int i) {
-		int length = store.capacity();
+		int length = store.size();
 		for (; i < length; i++) {
-			if (store.get(i) != null) return i;
+			if (store.get(i) != null) break;
 		}
-		return length;
+		return i;
 	}
 
 }

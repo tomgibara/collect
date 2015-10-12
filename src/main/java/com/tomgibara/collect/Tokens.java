@@ -23,12 +23,21 @@ public final class Tokens {
 	}
 	
 	public <V> Maps<V> withGenericStorage() {
-		return new Maps<>(Storage.generic());
+		return new Maps<>(Storage.generic(false));
+	}
+	
+	public <V> Maps<V> withNullableGenericStorage() {
+		return new Maps<>(Storage.generic(true));
 	}
 	
 	public <V> Maps<V> withTypedStorage(Class<V> type) {
 		if (type == null) throw new IllegalArgumentException("null type");
-		return new Maps<>(Storage.typed(type));
+		return new Maps<>(Storage.typed(type, false));
+	}
+	
+	public <V> Maps<V> withNullableTypedStorage(Class<V> type) {
+		if (type == null) throw new IllegalArgumentException("null type");
+		return new Maps<>(Storage.typed(type, true));
 	}
 	
 	public final class Maps<V> {

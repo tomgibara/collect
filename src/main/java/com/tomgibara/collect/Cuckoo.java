@@ -43,30 +43,38 @@ final class Cuckoo<E> {
 				basis.sized(HashSize.fromInt(newCapacity));
 	}
 	
-	Access access(Store<E> store, Hasher<E> hasher) {
-		return new Access(store, hasher);
+	<V> Access<V> access(Store<E> store, Hasher<E> hasher, Resizer<E,V> resize, Store<V> values) {
+		return new Access<V>(store, hasher, resize, values);
+	}
+	
+	interface Resizer<E,V> {
+		
+		Cuckoo<E>.Access<V> resize();
+		
 	}
 
-	final class Access {
+	final class Access<V> {
 		
 		private final Store<E> store;
 		private final Hasher<E> hasher;
+		private final Resizer<E,V> resize;
+		private final Store<V> values;
 		
-		Access(Store<E> store, Hasher<E> hasher) {
+		Access(Store<E> store, Hasher<E> hasher, Resizer<E,V> resize, Store<V> values) {
 			this.store = store;
 			this.hasher = hasher;
+			this.resize = resize;
+			this.values = values;
 		}
 
-		Object add(E e) {
-			return insert(e, -1, 0);
-		}
-		
-		// Note: non-recursive implementation
-		private Object insert(E e, int oldIndex, int retryCount) {
-//			System.out.println("inserting " + e + " from " + oldIndex + " (" + retryCount + ")");
+		// Note: non-recursive add, but resize recurses
+		V add(E e, V v, boolean overwrite) {
 			int[] hashes = new int[HASH_COUNT];
+			V previous = null;
+			int retryCount = 0;
+			boolean first = true;
 
-			while (true) {
+			outer: while (true) {
 				// initially check e not present
 				HashCode hash = hasher.hash(e);
 				int firstNull = -1;
@@ -74,17 +82,24 @@ final class Cuckoo<E> {
 					int h = hash.intValue();
 					hashes[i] = h;
 					E e2 = store.get(h);
-					if (oldIndex == -1) {
+					if (first) {
 						// on the first pass, the value may not already by present
 						if (e2 == null) {
+							// note can't just break here, e may still be present at another index
 							if (firstNull == -1) firstNull = h;
-						} else {
-							if (equ.isEquivalent(e, e2)) return FAILURE;
+						} else if (equ.isEquivalent(e, e2)) {
+							// we can insert the value here
+							if (values != null) {
+								previous = values.get(h);
+								// the key is already present
+								if (overwrite) values.set(h, v);
+							}
+							break outer;
 						}
 					} else {
-						// we know the value already there, just looking for nulls
+						// we know the value is no longer there, because we overwrote it, so just looking for nulls
 						if (e2 == null) {
-							firstNull = i;
+							firstNull = h;
 							break;
 						}
 					}
@@ -92,23 +107,39 @@ final class Cuckoo<E> {
 				// easy case - we have a null
 				if (firstNull != -1) {
 					store.set(firstNull, e);
-					return SUCCESS;
+					if (values != null) {
+						if (first) previous = values.get(firstNull);
+						values.set(firstNull, v);
+					}
+					break;
 				}
-		
+
 				// there's work to do to find a slot
 				int i = random.nextInt(HASH_COUNT);
 				int h = hashes[i];
 				E e2 = store.get(h);
+				V v2 = values == null ? null : values.get(h);
 				store.set(h, e);
+				if (values != null) {
+					if (first) previous = values.get(h);
+					values.set(h, v);
+				}
 
-				// this has gone on too long, expect caller to enlarge the backing store and try again;
-				if (retryCount >= RETRY_LIMIT) return e2;
+				// this has gone on too long, enlarge the backing store and continue;
+				if (retryCount >= RETRY_LIMIT) {
+					Cuckoo<E>.Access<V> access = resize.resize();
+					V result = access.add(e2, v2, false); // overwrite value actually irrelevant since key not 
+					if (first) previous = result;
+					break;
+				}
 
 				// update variables and retry
 				e = e2;
-				oldIndex = h;
+				v = v2;
+				first = false;
 				retryCount++;
 			}
+			return previous;
 		}
 
 		@SuppressWarnings("unchecked")

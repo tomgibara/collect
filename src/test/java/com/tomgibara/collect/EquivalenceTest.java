@@ -1,21 +1,23 @@
 package com.tomgibara.collect;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 
-import org.junit.Ignore;
 import org.junit.Test;
-
-import junit.framework.TestCase;
 
 import com.tomgibara.hashing.HashCode;
 import com.tomgibara.hashing.HashSize;
 import com.tomgibara.hashing.Hasher;
 
-public class EquivalenceTest extends TestCase {
+public class EquivalenceTest {
 
 	enum StorageType {
 		PRIMITIVE,
@@ -57,6 +59,7 @@ public class EquivalenceTest extends TestCase {
 		};
 	}
 
+	@Test
 	public void testModuloSet() {
 		for (StorageType storageType : StorageType.values()) {
 			for (int n = 1; n <= 64; n++) {
@@ -80,16 +83,20 @@ public class EquivalenceTest extends TestCase {
 		assertTrue(set.isEmpty());
 		for (int i = 0; i < 2 * n; i++) {
 			assertEquals(i >= n, set.contains(i));
+			for (int j = i; j < n; j++) {
+				assertFalse(set.contains(j));
+			}
 			set.add(i);
 			assertTrue(set.contains(i));
+			for (int j = 0; j < i; j++) {
+				assertTrue("missing " + j + " after adding " + i, set.contains(j));
+			}
 			assertEquals(Math.min(i + 1, n), set.size());
 
-			
-			Set<Integer> check = new HashSet<Integer>();
+			Set<Integer> check = new TreeSet<Integer>();
 			for (Integer e : set) {
 				check.add(e);
 			}
-			assertFalse(check.contains(null));
 			assertEquals(set.size(), check.size());
 			assertEquals(set, check);
 
@@ -110,6 +117,7 @@ public class EquivalenceTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void testModuloMap() {
 		for (StorageType storageType : StorageType.values()) {
 			for (int n = 1; n <= 64; n++) {
@@ -119,15 +127,16 @@ public class EquivalenceTest extends TestCase {
 	}
 
 	private void testModuloMap(int n, StorageType s) {
-		Equivalence<Integer> equivalence = Collect.equivalence(modulo(n));
+		EquRel<Integer> rel = modulo(n);
+		Equivalence<Integer> equivalence = Collect.equivalence(rel);
 		EquivalenceMap<Integer, String> map;
 		switch (s) {
 		case GENERIC:
-			map = equivalence.setsWithGenericStorage().mappedToTypedStorage(String.class).newMap(); break;
+			map = equivalence.setsWithGenericStorage().mappedToTypedStorage(String.class, false).newMap(); break;
 		case OBJECT:
-			map = equivalence.setsWithTypedStorage(Integer.class).mappedToTypedStorage(String.class).newMap(); break;
+			map = equivalence.setsWithTypedStorage(Integer.class).mappedToTypedStorage(String.class, false).newMap(); break;
 		case PRIMITIVE:
-			map = equivalence.setsWithTypedStorage(int.class).mappedToTypedStorage(String.class).newMap(); break;
+			map = equivalence.setsWithTypedStorage(int.class).mappedToTypedStorage(String.class, false).newMap(); break;
 			default: throw new IllegalStateException();
 		}
 		assertTrue(map.isEmpty());
@@ -135,6 +144,9 @@ public class EquivalenceTest extends TestCase {
 			assertEquals(i >= n, map.containsKey(i));
 			String value = Integer.toString(i);
 			map.put(i, value);
+			for (int j = 0; j <= i; j++) {
+				assertTrue(rel.isEquivalent(j, Integer.valueOf(map.get(j))));
+			}
 			assertTrue(map.containsKey(i));
 			assertTrue(map.containsValue(value));
 			assertEquals(Math.min(i + 1, n), map.size());
@@ -182,5 +194,23 @@ public class EquivalenceTest extends TestCase {
 		map.values().remove("B");
 		assertFalse(map.containsKey(n/2));
 		assertFalse(map.containsValue("B"));
+	}
+	
+	@Test
+	public void testMapSetConsistency() {
+		Equivalence<String> equality = Collect.equality();
+		Map<String, String> map = equality.setsWithTypedStorage(String.class).mappedToTypedStorage(String.class, false).newMap();
+		int size = 1000;
+		String[] strs = new String[size];
+		for (int i = 0; i < 1000; i++) {
+			strs[i] = Integer.toString(i);
+		}
+		for (String str : strs) {
+			map.put(str, str);
+		}
+		Set<String> keys = map.keySet();
+		for (String key : keys) {
+			assertEquals(key, map.get(key));
+		}
 	}
 }
