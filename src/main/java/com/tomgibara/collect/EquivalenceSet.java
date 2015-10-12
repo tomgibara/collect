@@ -106,9 +106,7 @@ public final class EquivalenceSet<E> extends AbstractSet<E> implements Mutabilit
 	public boolean add(E e) {
 		if (e == null) throw new IllegalArgumentException("null e");
 		if (!store.isMutable()) throw new IllegalStateException("immutable");
-		//TODO need to indicate success
-		access().add(e, null, false);
-		return true;
+		return access().add(e);
 	}
 	
 	@Override
@@ -131,7 +129,7 @@ public final class EquivalenceSet<E> extends AbstractSet<E> implements Mutabilit
 		Cuckoo<E>.Access<Void> access = access();
 		for (int j = 0; j < oldCapacity; j++) {
 			E t = oldStore.get(j);
-			if (t != null) access.add(t, null, false);
+			if (t != null) access.add(t);
 		}
 		return access;
 	}

@@ -206,7 +206,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 			K ko = oldKeyStore.get(j);
 			if (ko != null) {
 				V vo = oldValueStore.get(j);
-				access.add(ko, vo, false);
+				access.put(ko, vo, false);
 			}
 		}
 		return access;
@@ -219,7 +219,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 	private V putImpl(K key, V value, boolean overwrite) {
 		if (value == null) throw new IllegalArgumentException("null value");
 		checkMutable();
-		return access().add(key, value, overwrite);
+		return access().put(key, value, overwrite);
 	}
 
 	private int indexOfValue(Object value) {

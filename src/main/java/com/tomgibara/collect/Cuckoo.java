@@ -7,6 +7,7 @@ import com.tomgibara.hashing.HashSize;
 import com.tomgibara.hashing.Hasher;
 import com.tomgibara.storage.Store;
 
+//TODO hash count should be adjustable
 final class Cuckoo<E> {
 
 	// statics
@@ -27,15 +28,15 @@ final class Cuckoo<E> {
 	final EquRel<E> equ;
 	private final Hasher<E> basis;
 
+	// constructors
+	
 	Cuckoo(Random random, EquRel<E> equ) {
 		this.random = random;
 		this.equ = equ;
 		basis = equ.getHasher().ints();
 	}
-
-	int[] newHashesArray() {
-		return new int[HASH_COUNT];
-	}
+	
+	// package scoped methods
 
 	Hasher<E> updateHasher(Hasher<E> oldHasher, int newCapacity) {
 		return oldHasher != null && oldHasher.getSize().asInt() == newCapacity ?
@@ -46,6 +47,14 @@ final class Cuckoo<E> {
 	<V> Access<V> access(Store<E> store, Hasher<E> hasher, Resizer<E,V> resize, Store<V> values) {
 		return new Access<V>(store, hasher, resize, values);
 	}
+	
+	// private utility methods
+	
+	private int[] newHashesArray() {
+		return new int[HASH_COUNT];
+	}
+
+	// inner classes
 	
 	interface Resizer<E,V> {
 		
@@ -67,8 +76,66 @@ final class Cuckoo<E> {
 			this.values = values;
 		}
 
+		// Note: logic between adding/putting is so very similar, but slightly different
+		// duplication appears to be the only practical option at the moment.
+
+		boolean add(E e) {
+			int[] hashes = newHashesArray();
+			int retryCount = 0;
+			boolean first = true;
+
+			while (true) {
+				// initially check e not present
+				HashCode hash = hasher.hash(e);
+				int firstNull = -1;
+				for (int i = 0; i < HASH_COUNT; i++) {
+					int h = hash.intValue();
+					hashes[i] = h;
+					E e2 = store.get(h);
+					if (first) {
+						// on the first pass, the value may not already by present
+						if (e2 == null) {
+							// note can't just break here, e may still be present at another index
+							if (firstNull == -1) firstNull = h;
+						} else if (equ.isEquivalent(e, e2)) {
+							return false;
+						}
+					} else {
+						// we know the value is no longer there, because we overwrote it, so just looking for nulls
+						if (e2 == null) {
+							firstNull = h;
+							break;
+						}
+					}
+				}
+				// easy case - we have a null
+				if (firstNull != -1) {
+					store.set(firstNull, e);
+					return true;
+				}
+
+				// there's work to do to find a slot
+				int i = random.nextInt(HASH_COUNT);
+				int h = hashes[i];
+				E e2 = store.get(h);
+				store.set(h, e);
+
+				// this has gone on too long, enlarge the backing store and continue;
+				if (retryCount >= RETRY_LIMIT) {
+					Cuckoo<E>.Access<V> access = resize.resize();
+					access.add(e2);
+					return true;
+				}
+
+				// update variables and retry
+				e = e2;
+				first = false;
+				retryCount++;
+			}
+		}
+
 		// Note: non-recursive add, but resize recurses
-		V add(E e, V v, boolean overwrite) {
+		V put(E e, V v, boolean overwrite) {
 			int[] hashes = new int[HASH_COUNT];
 			V previous = null;
 			int retryCount = 0;
@@ -128,7 +195,7 @@ final class Cuckoo<E> {
 				// this has gone on too long, enlarge the backing store and continue;
 				if (retryCount >= RETRY_LIMIT) {
 					Cuckoo<E>.Access<V> access = resize.resize();
-					V result = access.add(e2, v2, false); // overwrite value actually irrelevant since key not 
+					V result = access.put(e2, v2, false); // overwrite value actually irrelevant since key not 
 					if (first) previous = result;
 					break;
 				}
