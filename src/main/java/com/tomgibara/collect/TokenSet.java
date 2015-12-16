@@ -29,7 +29,7 @@ public final class TokenSet extends AbstractSet<String> implements Mutability<To
 	// methods
 	
 	public void fill() {
-		bits.clearWithOnes();
+		bits.fillWithOnes();
 	}
 	
 	public boolean isFull() {
@@ -89,7 +89,7 @@ public final class TokenSet extends AbstractSet<String> implements Mutability<To
 
 	@Override
 	public void clear() {
-		bits.clearWithZeros();
+		bits.fillWithZeros();
 	}
 	
 	@Override
