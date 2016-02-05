@@ -5,13 +5,14 @@ import java.util.NoSuchElementException;
 
 import com.tomgibara.storage.Store;
 
-abstract class StoreIterator<V, E> implements Iterator<E> {
+//TODO move to store project and maybe change to using a lambda instead of a protected method?
+public abstract class StoreIterator<V, E> implements Iterator<E> {
 
 	final Store<V> store;
 	private int previous = -1;
 	private int next;
 
-	StoreIterator(Store<V> store) {
+	public StoreIterator(Store<V> store) {
 		this.store = store;
 		next = subsequent(0);
 	}
@@ -39,7 +40,7 @@ abstract class StoreIterator<V, E> implements Iterator<E> {
 		previous = -1;
 	}
 	
-	abstract E get(int index);
+	protected abstract E get(int index);
 
 	private int subsequent(int i) {
 		int length = store.size();

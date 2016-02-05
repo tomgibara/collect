@@ -3,7 +3,7 @@ package com.tomgibara.collect;
 import java.util.Map.Entry;
 import java.util.Objects;
 
-abstract class AbstractMapEntry<K, V> implements Entry<K, V> {
+public abstract class AbstractMapEntry<K, V> implements Entry<K, V> {
 
 	@Override
 	public V setValue(V value) {

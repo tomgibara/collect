@@ -25,8 +25,8 @@ public class EquivalenceTest {
 		GENERIC
 	}
 	
-	EquRel<Integer> modulo(int n) {
-		return new EquRel<Integer>() {
+	Equivalence<Integer> modulo(int n) {
+		return new Equivalence<Integer>() {
 
 			private final Hasher<Integer> hasher = new Hasher<Integer>() {
 
@@ -69,7 +69,7 @@ public class EquivalenceTest {
 	}
 	
 	private void testModuloSet(int n, StorageType s) {
-		Equivalence<Integer> equivalence = Collect.equivalence(modulo(n));
+		EquivalenceCol<Integer> equivalence = Collect.equivalence(modulo(n));
 		EquivalenceSet<Integer> set;
 		switch (s) {
 		case GENERIC:
@@ -127,8 +127,8 @@ public class EquivalenceTest {
 	}
 
 	private void testModuloMap(int n, StorageType s) {
-		EquRel<Integer> rel = modulo(n);
-		Equivalence<Integer> equivalence = Collect.equivalence(rel);
+		Equivalence<Integer> rel = modulo(n);
+		EquivalenceCol<Integer> equivalence = Collect.equivalence(rel);
 		EquivalenceMap<Integer, String> map;
 		switch (s) {
 		case GENERIC:
@@ -198,7 +198,7 @@ public class EquivalenceTest {
 	
 	@Test
 	public void testMapSetConsistency() {
-		Equivalence<String> equality = Collect.equality();
+		EquivalenceCol<String> equality = Collect.equality();
 		Map<String, String> map = equality.setsWithTypedStorage(String.class).mappedToTypedStorage(String.class, false).newMap();
 		int size = 1000;
 		String[] strs = new String[size];

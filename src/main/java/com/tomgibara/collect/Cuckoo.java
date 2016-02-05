@@ -25,12 +25,12 @@ final class Cuckoo<E> {
 	// fields
 	
 	final Random random;
-	final EquRel<E> equ;
+	final Equivalence<E> equ;
 	private final Hasher<E> basis;
 
 	// constructors
 	
-	Cuckoo(Random random, EquRel<E> equ) {
+	Cuckoo(Random random, Equivalence<E> equ) {
 		this.random = random;
 		this.equ = equ;
 		basis = equ.getHasher().ints();

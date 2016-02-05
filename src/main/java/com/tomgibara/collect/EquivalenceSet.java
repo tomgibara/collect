@@ -35,7 +35,7 @@ public final class EquivalenceSet<E> extends AbstractSet<E> implements Mutabilit
 
 	// accessors
 	
-	public EquRel<E> getEquivalence() {
+	public Equivalence<E> getEquivalence() {
 		return cuckoo.equ;
 	}
 
@@ -113,7 +113,7 @@ public final class EquivalenceSet<E> extends AbstractSet<E> implements Mutabilit
 	public Iterator<E> iterator() {
 		return new StoreIterator<E, E>(store) {
 			@Override
-			E get(int index) {
+			protected E get(int index) {
 				return store.get(index);
 			}
 		};
