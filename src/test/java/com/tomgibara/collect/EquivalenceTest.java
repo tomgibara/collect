@@ -199,7 +199,7 @@ public class EquivalenceTest {
 	@Test
 	public void testMapSetConsistency() {
 		EquivalenceCol<String> equality = Collect.equality();
-		Map<String, String> map = equality.setsWithTypedStorage(String.class).mappedToTypedStorage(String.class, false).newMap();
+		EquivalenceMap<String, String> map = equality.setsWithTypedStorage(String.class).mappedToTypedStorage(String.class, false).newMap();
 		int size = 1000;
 		String[] strs = new String[size];
 		for (int i = 0; i < 1000; i++) {

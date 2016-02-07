@@ -111,12 +111,7 @@ public final class EquivalenceSet<E> extends AbstractSet<E> implements Mutabilit
 	
 	@Override
 	public Iterator<E> iterator() {
-		return new StoreIterator<E, E>(store) {
-			@Override
-			protected E get(int index) {
-				return store.get(index);
-			}
-		};
+		return store.iterator();
 	}
 
 	// private utility methods

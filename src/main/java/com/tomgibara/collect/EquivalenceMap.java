@@ -276,12 +276,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 		
 		@Override
 		public Iterator<K> iterator() {
-			return new StoreIterator<V, K>(valueStore) {
-				@Override
-				protected K get(int index) {
-					return keyStore.get(index);
-				}
-			};
+			return valueStore.transformedIterator((i,v) -> keyStore.get(i));
 		}
 
 	}
@@ -320,12 +315,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 
 		@Override
 		public Iterator<V> iterator() {
-			return new StoreIterator<V, V>(valueStore) {
-				@Override
-				protected V get(int index) {
-					return valueStore.get(index);
-				}
-			};
+			return valueStore.iterator();
 		}
 
 	}
@@ -383,12 +373,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 		
 		@Override
 		public Iterator<Entry<K, V>> iterator() {
-			return new StoreIterator<K, Entry<K, V>>(keyStore) {
-				@Override
-				protected CuckooEntry get(int index) {
-					return new CuckooEntry(index);
-				}
-			};
+			return keyStore.transformedIterator((i,k) -> new CuckooEntry(i,k));
 		}
 	}
 	
@@ -397,9 +382,9 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 		private final K key;
 		private final int index;
 		
-		CuckooEntry(int index) {
+		CuckooEntry(int index, K key) {
 			this.index = index;
-			key = keyStore.get(index);
+			this.key = key;
 		}
 		
 		@Override
