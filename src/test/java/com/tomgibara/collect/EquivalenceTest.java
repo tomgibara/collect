@@ -5,7 +5,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -132,11 +134,11 @@ public class EquivalenceTest {
 		EquivalenceMap<Integer, String> map;
 		switch (s) {
 		case GENERIC:
-			map = equivalence.setsWithGenericStorage().mappedToTypedStorage(String.class, false).newMap(); break;
+			map = equivalence.setsWithGenericStorage().mappedToTypedStorage(String.class, "").newMap(); break;
 		case OBJECT:
-			map = equivalence.setsWithTypedStorage(Integer.class).mappedToTypedStorage(String.class, false).newMap(); break;
+			map = equivalence.setsWithTypedStorage(Integer.class).mappedToTypedStorage(String.class, "").newMap(); break;
 		case PRIMITIVE:
-			map = equivalence.setsWithTypedStorage(int.class).mappedToTypedStorage(String.class, false).newMap(); break;
+			map = equivalence.setsWithTypedStorage(int.class).mappedToTypedStorage(String.class, "").newMap(); break;
 			default: throw new IllegalStateException();
 		}
 		assertTrue(map.isEmpty());
@@ -199,7 +201,7 @@ public class EquivalenceTest {
 	@Test
 	public void testMapSetConsistency() {
 		EquivalenceCol<String> equality = Collect.equality();
-		EquivalenceMap<String, String> map = equality.setsWithTypedStorage(String.class).mappedToTypedStorage(String.class, false).newMap();
+		EquivalenceMap<String, String> map = equality.setsWithTypedStorage(String.class).mappedToTypedStorage(String.class, "").newMap();
 		int size = 1000;
 		String[] strs = new String[size];
 		for (int i = 0; i < 1000; i++) {
@@ -213,4 +215,52 @@ public class EquivalenceTest {
 			assertEquals(key, map.get(key));
 		}
 	}
+	
+	@Test
+	public void testValues() {
+		EquivalenceMap<Object, Object> map = Collect.equality().setsWithGenericStorage().mappedToGenericStorage().newMap();
+		Collection<Object> values = map.values();
+		assertTrue(values.isEmpty());
+		assertFalse(values.iterator().hasNext());
+		map.put("one", "1");
+		assertFalse(values.isEmpty());
+		Iterator<Object> it = values.iterator();
+		assertTrue(it.hasNext());
+		assertEquals("1", it.next());
+		assertFalse(it.hasNext());
+	}
+
+	@Test
+	public void testKeys() {
+		EquivalenceMap<String, String> map = Collect
+				.<String>equality()
+				.setsWithGenericStorage()
+				.<String>mappedToGenericStorage()
+				.newMap();
+		checkKeys(map);
+	}
+
+	@Test
+	public void testKeys2() {
+		EquivalenceMap<String,String> map = Collect
+				.<String>equality()
+				.setsWithTypedStorage(String.class)
+				.mappedToTypedStorage(String.class, "")
+				.newMap();
+		checkKeys(map);
+	}
+
+	private void checkKeys(EquivalenceMap<String, String> map) {
+		Set<String> keys = map.keySet();
+		assertTrue(keys.isEmpty());
+		assertFalse(keys.iterator().hasNext());
+		map.put("one", "1");
+		assertFalse(keys.isEmpty());
+		Iterator<String> it = keys.iterator();
+		assertTrue(it.hasNext());
+		assertEquals("one", it.next());
+		assertFalse(it.hasNext());
+	}
+
+
 }

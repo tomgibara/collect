@@ -19,6 +19,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 	private final Storage<K> keyStorage;
 	private final Storage<V> valueStorage;
 	private final Equivalence<V> equ;
+	private final V removalValue;
 	private Hasher<K> hasher = null;
 	private Store<K> keyStore;
 	private Store<V> valueStore;
@@ -27,11 +28,12 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 	private Keys keys = null;
 	private Values values = null;
 
-	EquivalenceMap(Cuckoo<K> cuckoo, Storage<K> keyStorage, Storage<V> valueStorage, Equivalence<V> equ, int initialCapacity) {
+	EquivalenceMap(Cuckoo<K> cuckoo, Storage<K> keyStorage, Storage<V> valueStorage, Equivalence<V> equ, V removalValue, int initialCapacity) {
 		this.cuckoo = cuckoo;
 		this.keyStorage = keyStorage;
 		this.valueStorage = valueStorage;
 		this.equ = equ;
+		this.removalValue = removalValue;
 		hasher = cuckoo.updateHasher(hasher, initialCapacity);
 		keyStore = keyStorage.newStore(initialCapacity);
 		valueStore = valueStorage.newStore(initialCapacity);
@@ -42,6 +44,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 		this.keyStorage = that.keyStorage;
 		this.valueStorage = that.valueStorage;
 		this.equ = that.equ;
+		this.removalValue = that.removalValue;
 		this.hasher = cuckoo.updateHasher(that.hasher, keyStore.size());
 		this.keyStore = keyStore;
 		this.valueStore = valueStore;
@@ -95,7 +98,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 		if (i == -1) return null;
 		V value = valueStore.get(i);
 		keyStore.set(i, null);
-		valueStore.set(i, null);
+		valueStore.set(i, removalValue);
 		return value;
 	}
 	
@@ -108,7 +111,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 		V previous = valueStore.get(i);
 		if (!previous.equals(value)) return false;
 		keyStore.set(i, null);
-		valueStore.set(i, null);
+		valueStore.set(i, removalValue);
 		return true;
 	}
 
@@ -270,13 +273,13 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 			int i = access().indexOf(o);
 			if (i == -1) return false;
 			keyStore.set(i, null);
-			valueStore.set(i, null);
+			valueStore.set(i, removalValue);
 			return true;
 		}
 		
 		@Override
 		public Iterator<K> iterator() {
-			return valueStore.transformedIterator((i,v) -> keyStore.get(i));
+			return keyStore.iterator();
 		}
 
 	}
@@ -309,7 +312,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 			int i = indexOfValue(o);
 			if (i == -1) return false;
 			keyStore.set(i, null);
-			valueStore.set(i, null);
+			valueStore.set(i, removalValue);
 			return true;
 		}
 
@@ -366,7 +369,7 @@ public final class EquivalenceMap<K, V> extends AbstractMap<K, V> implements Mut
 			if (!contained) return false;
 			if (remove) {
 				keyStore.set(i, null);
-				valueStore.set(i, null);
+				valueStore.set(i, removalValue);
 			}
 			return true;
 		}

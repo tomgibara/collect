@@ -14,11 +14,11 @@ public class EquivalenceCol<E> {
 	}
 
 	public Sets setsWithGenericStorage() {
-		return new Sets(Storage.generic(true));
+		return new Sets(Storage.generic());
 	}
 	
 	public Sets setsWithTypedStorage(Class<E> type) {
-		return new Sets(Storage.typed(type, true));
+		return new Sets(Storage.typed(type));
 	}
 	
 	public Sets setsWithStorage(Storage<E> storage) {
@@ -56,17 +56,25 @@ public class EquivalenceCol<E> {
 			return set;
 		}
 
-		public <V> Maps<V> mappedToGenericStorage(boolean allowNulls) {
-			return new Maps<>(storage, Storage.generic(allowNulls));
+		public <V> Maps<V> mappedToGenericStorage() {
+			return new Maps<>(storage, Storage.generic(), null);
 		}
 
-		public <V> Maps<V> mappedToTypedStorage(Class<V> type, boolean allowNulls) {
-			return new Maps<>(storage, Storage.typed(type, allowNulls));
+		public <V> Maps<V> mappedToGenericStorage(V initialValue) {
+			return new Maps<>(storage, Storage.generic(initialValue), initialValue);
+		}
+
+		public <V> Maps<V> mappedToTypedStorage(Class<V> type) {
+			return new Maps<>(storage, Storage.typed(type), null);
+		}
+
+		public <V> Maps<V> mappedToTypedStorage(Class<V> type, V initialValue) {
+			return new Maps<>(storage, Storage.typed(type, initialValue), initialValue);
 		}
 
 		public <V> Maps<V> mappedToStorage(Storage<V> valueStorage) {
 			if (valueStorage == null) throw new IllegalArgumentException("null valueStorage");
-			return new Maps<>(storage, valueStorage);
+			return new Maps<>(storage, valueStorage, null);
 		}
 
 	}
@@ -77,19 +85,21 @@ public class EquivalenceCol<E> {
 
 		private final Storage<E> keyStorage;
 		private final Storage<V> valueStorage;
+		private final V removalValue;
 
-		Maps(Storage<E> keyStorage, Storage<V> valueStorage) {
+		Maps(Storage<E> keyStorage, Storage<V> valueStorage, V removalValue) {
 			this.keyStorage = keyStorage;
 			this.valueStorage = valueStorage;
+			this.removalValue = removalValue;
 		}
 
 		public EquivalenceMap<E, V> newMap() {
-			return new EquivalenceMap<E, V>(new Cuckoo<>(new Random(0L), equ), keyStorage, valueStorage, Equivalence.equality(), DEFAULT_CAPACITY);
+			return new EquivalenceMap<E, V>(new Cuckoo<>(new Random(0L), equ), keyStorage, valueStorage, Equivalence.equality(), removalValue, DEFAULT_CAPACITY);
 		}
 
 		public EquivalenceMap<E, V> newMapWithValueEquivalence(Equivalence<V> valueEqu) {
 			if (valueEqu == null) throw new IllegalArgumentException("null valueEqu");
-			return new EquivalenceMap<E, V>(new Cuckoo<>(new Random(0L), equ), keyStorage, valueStorage, valueEqu, DEFAULT_CAPACITY);
+			return new EquivalenceMap<E, V>(new Cuckoo<>(new Random(0L), equ), keyStorage, valueStorage, valueEqu, removalValue, DEFAULT_CAPACITY);
 		}
 
 	}
