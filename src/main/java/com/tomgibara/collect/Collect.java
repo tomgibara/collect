@@ -3,17 +3,17 @@ package com.tomgibara.collect;
 
 public final class Collect {
 
-	public static <E> EquivalenceCol<E> equivalence(Equivalence<E> equ) {
+	public static <E> EquivalenceCollections<E> equivalence(Equivalence<E> equ) {
 		if (equ == null) throw new IllegalArgumentException("null equ");
-		return new EquivalenceCol<E>(equ);
+		return new EquivalenceCollections<E>(equ);
 	}
 
-	public static <E> EquivalenceCol<E> equality() {
-		return new EquivalenceCol<>(Equivalence.equality());
+	public static <E> EquivalenceCollections<E> equality() {
+		return new EquivalenceCollections<>(Equivalence.equality());
 	}
 
-	public static <E> EquivalenceCol<E> identity() {
-		return new EquivalenceCol<>(Equivalence.identity());
+	public static <E> EquivalenceCollections<E> identity() {
+		return new EquivalenceCollections<>(Equivalence.identity());
 	}
 
 	private Collect() {}

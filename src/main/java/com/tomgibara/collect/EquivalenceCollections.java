@@ -5,11 +5,11 @@ import java.util.Random;
 
 import com.tomgibara.storage.Storage;
 
-public class EquivalenceCol<E> {
+public class EquivalenceCollections<E> {
 
 	private final Equivalence<E> equ;
 	
-	EquivalenceCol(Equivalence<E> equ) {
+	EquivalenceCollections(Equivalence<E> equ) {
 		this.equ = equ;
 	}
 
