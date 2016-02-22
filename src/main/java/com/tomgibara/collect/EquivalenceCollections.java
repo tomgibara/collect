@@ -37,7 +37,7 @@ public class EquivalenceCollections<E> {
 		}
 		
 		public EquivalenceSet<E> newSet() {
-			return new EquivalenceSet<E>(new Cuckoo<>(new Random(0L), equ), storage, DEFAULT_CAPACITY);
+			return new CuckooEquivalenceSet<E>(new Cuckoo<>(new Random(0L), equ), storage, DEFAULT_CAPACITY);
 		}
 		
 		public EquivalenceSet<E> newSet(Collection<? extends E> es) {
@@ -51,7 +51,7 @@ public class EquivalenceCollections<E> {
 			} else {
 				capacity = Math.round(es.size() * 1.2f);
 			}
-			EquivalenceSet<E> set = new EquivalenceSet<E>(new Cuckoo<>(new Random(0L), equ), storage, capacity);
+			EquivalenceSet<E> set = new CuckooEquivalenceSet<E>(new Cuckoo<>(new Random(0L), equ), storage, capacity);
 			set.addAll(es);
 			return set;
 		}
@@ -94,12 +94,12 @@ public class EquivalenceCollections<E> {
 		}
 
 		public EquivalenceMap<E, V> newMap() {
-			return new EquivalenceMap<E, V>(new Cuckoo<>(new Random(0L), equ), keyStorage, valueStorage, Equivalence.equality(), removalValue, DEFAULT_CAPACITY);
+			return new CuckooEquivalenceMap<E, V>(new Cuckoo<>(new Random(0L), equ), keyStorage, valueStorage, Equivalence.equality(), removalValue, DEFAULT_CAPACITY);
 		}
 
 		public EquivalenceMap<E, V> newMapWithValueEquivalence(Equivalence<V> valueEqu) {
 			if (valueEqu == null) throw new IllegalArgumentException("null valueEqu");
-			return new EquivalenceMap<E, V>(new Cuckoo<>(new Random(0L), equ), keyStorage, valueStorage, valueEqu, removalValue, DEFAULT_CAPACITY);
+			return new CuckooEquivalenceMap<E, V>(new Cuckoo<>(new Random(0L), equ), keyStorage, valueStorage, valueEqu, removalValue, DEFAULT_CAPACITY);
 		}
 
 	}
