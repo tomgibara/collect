@@ -10,4 +10,7 @@ public interface EquivalenceMap<K,V> extends Map<K, V>, Mutability<EquivalenceMa
 	
 	Equivalence<V> getValueEquivalence();
 	
+	@Override
+	EquivalenceSet<K> keySet();
+
 }

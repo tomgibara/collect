@@ -25,6 +25,13 @@ final class CuckooEquivalenceSet<E> extends AbstractSet<E> implements Equivalenc
 		store = storage.newStore(initialCapacity);
 	}
 
+	CuckooEquivalenceSet(Cuckoo<E> cuckoo, Storage<E> storage, Store<E> store) {
+		this.cuckoo = cuckoo;
+		this.storage = storage;
+		this.store = store;
+		hasher = cuckoo.updateHasher(hasher, store.size());
+	}
+
 	private CuckooEquivalenceSet(CuckooEquivalenceSet<E> that, Store<E> store) {
 		this.cuckoo = that.cuckoo;
 		this.storage = that.storage;

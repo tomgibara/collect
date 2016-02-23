@@ -166,7 +166,7 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 	}
 	
 	@Override
-	public Set<K> keySet() {
+	public EquivalenceSet<K> keySet() {
 		return keys == null ? keys = new Keys() : keys;
 	}
 	
@@ -204,7 +204,7 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 	
 	@Override
 	public EquivalenceMap<K, V> immutableView() {
-		return new CuckooEquivalenceMap<>(this, keyStore.immutable(), valueStore.immutable());
+		return new CuckooEquivalenceMap<>(this, keyStore.immutableView(), valueStore.immutableView());
 	}
 
 	// private helper methods
@@ -258,7 +258,16 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 	
 	// inner classes
 	
-	private final class Keys extends AbstractSet<K> {
+	private final class Keys extends AbstractSet<K> implements EquivalenceSet<K> {
+		
+		// equivalence methods
+		
+		@Override
+		public Equivalence<K> getEquivalence() {
+			return cuckoo.equ;
+		}
+		
+		// set methods
 		
 		@Override
 		public int size() {
@@ -295,6 +304,27 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 			return keyStore.iterator();
 		}
 
+		// mutability methods
+		
+		@Override
+		public boolean isMutable() {
+			return keyStore.isMutable();
+		}
+		
+		@Override
+		public EquivalenceSet<K> mutableCopy() {
+			return new CuckooEquivalenceSet<K>(cuckoo, keyStorage, keyStore.mutableCopy());
+		}
+
+		@Override
+		public EquivalenceSet<K> immutableCopy() {
+			return new CuckooEquivalenceSet<K>(cuckoo, keyStorage, keyStore.immutableCopy());
+		}
+
+		@Override
+		public EquivalenceSet<K> immutableView() {
+			return CuckooEquivalenceMap.this.immutableView().keySet();
+		}
 	}
 	
 	private final class Values extends AbstractCollection<V> {

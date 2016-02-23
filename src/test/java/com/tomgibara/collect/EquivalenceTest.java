@@ -262,5 +262,55 @@ public class EquivalenceTest {
 		assertFalse(it.hasNext());
 	}
 
-
+	@Test
+	public void testKeySet() {
+		EquivalenceMap<Integer, Integer> map = Collect
+				.<Integer>equality()
+				.setsWithTypedStorage(int.class)
+				.mappedToTypedStorage(int.class)
+				.newMap();
+		// build map
+		map.put(1, 2);
+		map.put(2, 3);
+		map.put(3, 5);
+		// check keys matches
+		EquivalenceSet<Integer> keys = map.keySet();
+		assertEquals(3, keys.size());
+		assertTrue(keys.contains(1));
+		assertTrue(keys.contains(2));
+		assertTrue(keys.contains(3));
+		// check mutations to keys {
+		{
+			Iterator<Integer> it = keys.iterator();
+			while (it.hasNext()) {
+				if (it.next() == 2) it.remove();
+			}
+		}
+		assertTrue(keys.contains(1));
+		assertFalse(keys.contains(2));
+		assertTrue(keys.contains(3));
+		// check mutable copy
+		EquivalenceSet<Integer> mc = keys.mutableCopy();
+		assertTrue(mc.isMutable());
+		mc.add(2);
+		assertTrue(mc.contains(2));
+		assertEquals(3, mc.size());
+		assertFalse(keys.contains(2));
+		assertEquals(2, keys.size());
+		// check immutable copy and view
+		EquivalenceSet<Integer> ic = keys.immutableCopy();
+		EquivalenceSet<Integer> iv = keys.immutableView();
+		assertFalse(ic.isMutable());
+		assertFalse(iv.isMutable());
+		map.put(2,  3);
+		assertTrue(keys.contains(2));
+		assertFalse(ic.contains(2));
+		assertTrue(iv.contains(2));
+		// check clear
+		keys.clear();
+		assertTrue(map.isEmpty());
+		assertFalse(keys.contains(1));
+		assertFalse(keys.contains(2));
+		assertFalse(keys.contains(3));
+	}
 }
