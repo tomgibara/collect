@@ -75,7 +75,7 @@ final class CuckooEquivalenceSet<E> extends AbstractSet<E> implements Equivalenc
 	
 	@Override
 	public EquivalenceSet<E> immutableView() {
-		return new CuckooEquivalenceSet<>(this, store.immutable());
+		return new ImmutableEquivalenceSet<>(this);
 	}
 
 	// set

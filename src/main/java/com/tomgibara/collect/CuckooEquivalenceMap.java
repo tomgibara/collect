@@ -204,7 +204,7 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 	
 	@Override
 	public EquivalenceMap<K, V> immutableView() {
-		return new CuckooEquivalenceMap<>(this, keyStore.immutableView(), valueStore.immutableView());
+		return new ImmutableEquivalenceMap<>(this);
 	}
 
 	// private helper methods

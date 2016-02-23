@@ -313,4 +313,35 @@ public class EquivalenceTest {
 		assertFalse(keys.contains(2));
 		assertFalse(keys.contains(3));
 	}
+
+	
+	@Test
+	public void testImmutableSetView() {
+		EquivalenceSet<Integer> set = Collect
+				.<Integer>equality()
+				.setsWithTypedStorage(int.class)
+				.newSet();
+		EquivalenceSet<Integer> view = set.immutableView();
+		
+		for (int i = 0; i < 1000; i++) {
+			set.add(i);
+			assertTrue("element " + i + " missing", view.contains(i));
+		}
+	}
+
+	@Test
+	public void testImmutableMapView() {
+		EquivalenceMap<Integer, Integer> map = Collect
+				.<Integer>equality()
+				.setsWithTypedStorage(int.class)
+				.mappedToTypedStorage(int.class)
+				.newMap();
+		EquivalenceMap<Integer, Integer> view = map.immutableView();
+		
+		for (int i = 0; i < 1000; i++) {
+			map.put(i,i);
+			assertTrue("element " + i + " missing", view.containsKey(i));
+			assertEquals("element " + i + " incorrect", i, view.get(i).intValue());
+		}
+	}
 }
