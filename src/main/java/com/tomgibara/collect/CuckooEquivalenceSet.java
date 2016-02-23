@@ -32,8 +32,9 @@ final class CuckooEquivalenceSet<E> extends AbstractSet<E> implements Equivalenc
 		hasher = cuckoo.updateHasher(hasher, store.size());
 	}
 
-	// accessors
-	
+	// equivalence
+
+	@Override
 	public Equivalence<E> getEquivalence() {
 		return cuckoo.equ;
 	}

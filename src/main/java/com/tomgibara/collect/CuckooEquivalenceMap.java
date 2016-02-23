@@ -49,6 +49,20 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 		this.valueStore = valueStore;
 	}
 
+	// equivalence methods
+	
+	@Override
+	public Equivalence<K> getKeyEquivalence() {
+		return cuckoo.equ;
+	}
+	
+	@Override
+	public Equivalence<V> getValueEquivalence() {
+		return equ;
+	}
+	
+	// map methods
+	
 	@Override
 	public boolean containsKey(Object key) {
 		return access().indexOf(key) != -1;

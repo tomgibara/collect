@@ -6,4 +6,8 @@ import com.tomgibara.fundament.Mutability;
 
 public interface EquivalenceMap<K,V> extends Map<K, V>, Mutability<EquivalenceMap<K, V>> {
 
+	Equivalence<K> getKeyEquivalence();
+	
+	Equivalence<V> getValueEquivalence();
+	
 }
