@@ -18,7 +18,6 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 	private final Storage<K> keyStorage;
 	private final Storage<V> valueStorage;
 	private final Equivalence<V> equ;
-	private final V removalValue;
 	private Hasher<K> hasher = null;
 	private Store<K> keyStore;
 	private Store<V> valueStore;
@@ -27,12 +26,11 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 	private Keys keys = null;
 	private Values values = null;
 
-	CuckooEquivalenceMap(Cuckoo<K> cuckoo, Storage<K> keyStorage, Storage<V> valueStorage, Equivalence<V> equ, V removalValue, int initialCapacity) {
+	CuckooEquivalenceMap(Cuckoo<K> cuckoo, Storage<K> keyStorage, Storage<V> valueStorage, Equivalence<V> equ, int initialCapacity) {
 		this.cuckoo = cuckoo;
 		this.keyStorage = keyStorage;
 		this.valueStorage = valueStorage;
 		this.equ = equ;
-		this.removalValue = removalValue;
 		hasher = cuckoo.updateHasher(hasher, initialCapacity);
 		keyStore = keyStorage.newStore(initialCapacity);
 		valueStore = valueStorage.newStore(initialCapacity);
@@ -43,7 +41,6 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 		this.keyStorage = that.keyStorage;
 		this.valueStorage = that.valueStorage;
 		this.equ = that.equ;
-		this.removalValue = that.removalValue;
 		this.hasher = cuckoo.updateHasher(that.hasher, keyStore.size());
 		this.keyStore = keyStore;
 		this.valueStore = valueStore;
@@ -111,7 +108,7 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 		if (i == -1) return null;
 		V value = valueStore.get(i);
 		keyStore.set(i, null);
-		valueStore.set(i, removalValue);
+		valueStore.set(i, null);
 		return value;
 	}
 	
@@ -124,7 +121,7 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 		V previous = valueStore.get(i);
 		if (!previous.equals(value)) return false;
 		keyStore.set(i, null);
-		valueStore.set(i, removalValue);
+		valueStore.set(i, null);
 		return true;
 	}
 
@@ -295,7 +292,7 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 			int i = access().indexOf(o);
 			if (i == -1) return false;
 			keyStore.set(i, null);
-			valueStore.set(i, removalValue);
+			valueStore.set(i, null);
 			return true;
 		}
 		
@@ -355,7 +352,7 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 			int i = indexOfValue(o);
 			if (i == -1) return false;
 			keyStore.set(i, null);
-			valueStore.set(i, removalValue);
+			valueStore.set(i, null);
 			return true;
 		}
 
@@ -412,7 +409,7 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 			if (!contained) return false;
 			if (remove) {
 				keyStore.set(i, null);
-				valueStore.set(i, removalValue);
+				valueStore.set(i, null);
 			}
 			return true;
 		}

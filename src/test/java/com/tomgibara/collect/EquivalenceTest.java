@@ -134,11 +134,11 @@ public class EquivalenceTest {
 		EquivalenceMap<Integer, String> map;
 		switch (s) {
 		case GENERIC:
-			map = equivalence.setsWithGenericStorage().mappedToTypedStorage(String.class, "").newMap(); break;
+			map = equivalence.setsWithGenericStorage().mappedToTypedStorage(String.class).newMap(); break;
 		case OBJECT:
-			map = equivalence.setsWithTypedStorage(Integer.class).mappedToTypedStorage(String.class, "").newMap(); break;
+			map = equivalence.setsWithTypedStorage(Integer.class).mappedToTypedStorage(String.class).newMap(); break;
 		case PRIMITIVE:
-			map = equivalence.setsWithTypedStorage(int.class).mappedToTypedStorage(String.class, "").newMap(); break;
+			map = equivalence.setsWithTypedStorage(int.class).mappedToTypedStorage(String.class).newMap(); break;
 			default: throw new IllegalStateException();
 		}
 		assertTrue(map.isEmpty());
@@ -201,7 +201,7 @@ public class EquivalenceTest {
 	@Test
 	public void testMapSetConsistency() {
 		EquivalenceCollections<String> equality = Collect.equality();
-		EquivalenceMap<String, String> map = equality.setsWithTypedStorage(String.class).mappedToTypedStorage(String.class, "").newMap();
+		EquivalenceMap<String, String> map = equality.setsWithTypedStorage(String.class).mappedToTypedStorage(String.class).newMap();
 		int size = 1000;
 		String[] strs = new String[size];
 		for (int i = 0; i < 1000; i++) {
@@ -245,7 +245,7 @@ public class EquivalenceTest {
 		EquivalenceMap<String,String> map = Collect
 				.<String>equality()
 				.setsWithTypedStorage(String.class)
-				.mappedToTypedStorage(String.class, "")
+				.mappedToTypedStorage(String.class)
 				.newMap();
 		checkKeys(map);
 	}
