@@ -29,7 +29,7 @@ class ImmutableEquivalenceMap<K, V> implements EquivalenceMap<K, V> {
 	// mutability
 	
 	public boolean isMutable() {
-		return map.isMutable();
+		return false;
 	}
 
 	public EquivalenceMap<K, V> mutableCopy() {
