@@ -26,4 +26,14 @@ public interface EquivalenceSet<E> extends Set<E>, Mutability<EquivalenceSet<E>>
 
 	Equivalence<E> getEquivalence();
 
+	/**
+	 * Returns the element in the set that is equivalent to the supplied
+	 * element, or null.
+	 * 
+	 * @param e
+	 *            a possible element of the set
+	 * @return an equivalent element from the set, or null
+	 */
+
+	E get(E e);
 }

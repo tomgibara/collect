@@ -46,6 +46,13 @@ final class CuckooEquivalenceSet<E> extends AbstractSet<E> implements Equivalenc
 		return cuckoo.equ;
 	}
 
+	@Override
+	public E get(E e) {
+		if (e == null) throw new IllegalArgumentException("null e");
+		int i = access().checkedIndexOf(e);
+		return i == -1 ? null : store.get(i);
+	}
+
 	// mutability
 	
 	@Override

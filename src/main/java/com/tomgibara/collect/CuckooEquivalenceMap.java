@@ -264,6 +264,13 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 			return cuckoo.equ;
 		}
 		
+		@Override
+		public K get(K e) {
+			if (e == null) throw new IllegalArgumentException("null e");
+			int i = access().checkedIndexOf(e);
+			return i == -1 ? null : keyStore.get(i);
+		}
+		
 		// set methods
 		
 		@Override
