@@ -271,6 +271,12 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 			return i == -1 ? null : keyStore.get(i);
 		}
 		
+		@Override
+		public K some() {
+			int i = keyStore.population().ones().first();
+			return i == keyStore.size() ? null : keyStore.get(i);
+		}
+
 		// set methods
 		
 		@Override

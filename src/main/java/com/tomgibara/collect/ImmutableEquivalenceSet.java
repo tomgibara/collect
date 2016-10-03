@@ -151,6 +151,11 @@ class ImmutableEquivalenceSet<E> implements EquivalenceSet<E> {
 		return set.get(e);
 	}
 
+	@Override
+	public E some() {
+		return set.some();
+	}
+
 	// object methods
 	
 	@Override

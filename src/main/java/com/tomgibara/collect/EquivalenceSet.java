@@ -36,4 +36,17 @@ public interface EquivalenceSet<E> extends Set<E>, Mutability<EquivalenceSet<E>>
 	 */
 
 	E get(E e);
+
+	/**
+	 * <p>
+	 * Returns some element from the set, or null if the set is empty.
+	 * 
+	 * <p>
+	 * There is guarantee that this method will return the same or a different
+	 * element on each call.
+	 * 
+	 * @return an element from the set, or null if the set is empty
+	 */
+
+	E some();
 }

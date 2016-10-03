@@ -2,6 +2,8 @@ package com.tomgibara.collect;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -13,6 +15,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.tomgibara.hashing.HashCode;
@@ -343,5 +346,31 @@ public class EquivalenceTest {
 			assertTrue("element " + i + " missing", view.containsKey(i));
 			assertEquals("element " + i + " incorrect", i, view.get(i).intValue());
 		}
+	}
+
+	@Test
+	public void testSome() {
+		EquivalenceSet<String> set = Collect.<String>equality().setsWithGenericStorage().newSet();
+		assertNull(set.some());
+		set.add("X");
+		assertEquals("X", set.some());
+		set.add("Y");
+		assertNotNull(set.some());
+		set.remove("X");
+		assertEquals("Y", set.some());
+
+		assertEquals("Y", set.immutable().some());
+		set.clear();
+		assertNull(set.some());
+
+		EquivalenceMap<Integer, Integer> map = Collect
+				.<Integer>equality()
+				.setsWithTypedStorage(int.class)
+				.mappedToTypedStorage(int.class)
+				.newMap();
+
+		assertNull(map.keySet().some());
+		map.put(3,15);
+		assertEquals(3, map.keySet().some().intValue());
 	}
 }

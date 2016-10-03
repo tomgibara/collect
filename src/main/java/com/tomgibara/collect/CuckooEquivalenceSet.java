@@ -53,6 +53,12 @@ final class CuckooEquivalenceSet<E> extends AbstractSet<E> implements Equivalenc
 		return i == -1 ? null : store.get(i);
 	}
 
+	@Override
+	public E some() {
+		int i = store.population().ones().first();
+		return i == store.size() ? null : store.get(i);
+	}
+
 	// mutability
 	
 	@Override
