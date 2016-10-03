@@ -80,6 +80,7 @@ public class EquivalenceCollections<E> {
 		private static final int DEFAULT_CAPACITY = 16;
 		
 		private final Storage<E> storage;
+		private Cuckoo<E> singletonCuckoo = null;
 		
 		Sets(Storage<E> storage) {
 			this.storage = storage;
@@ -117,6 +118,13 @@ public class EquivalenceCollections<E> {
 			return set;
 		}
 
+		public EquivalenceSet<E> singletonSet(E el) {
+			if (el == null) throw new IllegalArgumentException("null el");
+			EquivalenceSet<E> set = new CuckooEquivalenceSet<E>(singletonCuckoo(), storage, 1);
+			set.add(el);
+			return set.immutable();
+		}
+
 		/**
 		 * Creates maps with values backed by generic storage.
 		 * 
@@ -152,6 +160,9 @@ public class EquivalenceCollections<E> {
 			return new Maps<>(storage, valueStorage);
 		}
 
+		private Cuckoo<E> singletonCuckoo() {
+			return singletonCuckoo == null ? singletonCuckoo = new Cuckoo<E>(FauxRandom.INSTANCE, equ) : singletonCuckoo;
+		}
 	}
 	
 	/**

@@ -373,4 +373,13 @@ public class EquivalenceTest {
 		map.put(3,15);
 		assertEquals(3, map.keySet().some().intValue());
 	}
+
+	@Test
+	public void testSingletonSet() {
+		EquivalenceCollections<String>.Sets sets = Collect.<String>equality().setsWithGenericStorage();
+		EquivalenceSet<String> set = sets.singletonSet("X");
+		assertEquals(1, set.size());
+		assertTrue(set.contains("X"));
+		assertFalse(set.isMutable());
+	}
 }
