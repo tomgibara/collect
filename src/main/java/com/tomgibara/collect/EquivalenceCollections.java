@@ -80,7 +80,8 @@ public class EquivalenceCollections<E> {
 		private static final int DEFAULT_CAPACITY = 16;
 		
 		private final Storage<E> storage;
-		private Cuckoo<E> singletonCuckoo = null;
+		private Cuckoo<E> trivialCuckoo = null;
+		private EquivalenceSet<E> emptySet = null;
 		
 		Sets(Storage<E> storage) {
 			this.storage = storage;
@@ -120,9 +121,13 @@ public class EquivalenceCollections<E> {
 
 		public EquivalenceSet<E> singletonSet(E el) {
 			if (el == null) throw new IllegalArgumentException("null el");
-			EquivalenceSet<E> set = new CuckooEquivalenceSet<E>(singletonCuckoo(), storage, 1);
+			EquivalenceSet<E> set = new CuckooEquivalenceSet<E>(trivialCuckoo(), storage, 1);
 			set.add(el);
 			return set.immutable();
+		}
+
+		public EquivalenceSet<E> emptySet() {
+			return emptySet == null ? emptySet = new CuckooEquivalenceSet<E>(trivialCuckoo(), storage, 0).immutable() : emptySet;
 		}
 
 		/**
@@ -160,8 +165,8 @@ public class EquivalenceCollections<E> {
 			return new Maps<>(storage, valueStorage);
 		}
 
-		private Cuckoo<E> singletonCuckoo() {
-			return singletonCuckoo == null ? singletonCuckoo = new Cuckoo<E>(FauxRandom.INSTANCE, equ) : singletonCuckoo;
+		private Cuckoo<E> trivialCuckoo() {
+			return trivialCuckoo == null ? trivialCuckoo = new Cuckoo<E>(FauxRandom.INSTANCE, equ) : trivialCuckoo;
 		}
 	}
 	

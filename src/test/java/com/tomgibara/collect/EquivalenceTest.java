@@ -382,4 +382,12 @@ public class EquivalenceTest {
 		assertTrue(set.contains("X"));
 		assertFalse(set.isMutable());
 	}
+
+	@Test
+	public void testEmptySet() {
+		EquivalenceCollections<String>.Sets sets = Collect.<String>equality().setsWithGenericStorage();
+		EquivalenceSet<String> set = sets.emptySet();
+		assertTrue(set.isEmpty());
+		assertFalse(set.isMutable());
+	}
 }
