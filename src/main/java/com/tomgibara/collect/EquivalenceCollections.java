@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Random;
 
 import com.tomgibara.storage.Storage;
-import com.tomgibara.storage.Stores;
+import com.tomgibara.storage.StoreNullity;
 
 /**
  * Creates collections in which keys are distinct up-to a specified equivalence.
@@ -149,7 +149,7 @@ public class EquivalenceCollections<E> {
 		 */
 
 		public <V> Maps<V> mappedToTypedStorage(Class<V> type) {
-			return new Maps<>(storage, Storage.typed(type, Stores.defaultNullValue(type).orElse(null)));
+			return new Maps<>(storage, Storage.typed(type, StoreNullity.defaultForType(type)));
 		}
 
 		/**
