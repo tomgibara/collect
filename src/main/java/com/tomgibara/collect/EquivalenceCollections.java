@@ -149,7 +149,7 @@ public class EquivalenceCollections<E> {
 		 */
 
 		public <V> Maps<V> mappedToTypedStorage(Class<V> type) {
-			return new Maps<>(storage, StoreType.of(type).settingNullToDefault().storage());
+			return new Maps<>(storage, StoreType.of(type).storage());
 		}
 
 		/**
