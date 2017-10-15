@@ -79,7 +79,7 @@ final class Cuckoo<E> {
 		// Note: logic between adding/putting is so very similar, but slightly different
 		// duplication appears to be the only practical option at the moment.
 
-		boolean add(E e) {
+		boolean add(E e, boolean overwriteIfPresent) {
 			int[] hashes = newHashesArray();
 			int retryCount = 0;
 			boolean first = true;
@@ -98,6 +98,8 @@ final class Cuckoo<E> {
 							// note can't just break here, e may still be present at another index
 							if (firstNull == -1) firstNull = h;
 						} else if (equ.isEquivalent(e, e2)) {
+							// replace the value if we're overwriting
+							if (overwriteIfPresent) store.set(h, e);
 							return false;
 						}
 					} else {
@@ -123,7 +125,7 @@ final class Cuckoo<E> {
 				// this has gone on too long, enlarge the backing store and continue;
 				if (retryCount >= RETRY_LIMIT) {
 					Cuckoo<E>.Access<V> access = resize.resize();
-					access.add(e2);
+					access.add(e2, overwriteIfPresent);
 					return true;
 				}
 

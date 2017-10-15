@@ -126,7 +126,8 @@ final class CuckooEquivalenceSet<E> extends AbstractSet<E> implements Equivalenc
 	public boolean add(E e) {
 		if (e == null) throw new IllegalArgumentException("null e");
 		if (!store.isMutable()) throw new IllegalStateException("immutable");
-		return access().add(e);
+		//TODO should be configurable
+		return access().add(e, true);
 	}
 	
 	@Override
@@ -144,7 +145,7 @@ final class CuckooEquivalenceSet<E> extends AbstractSet<E> implements Equivalenc
 		Cuckoo<E>.Access<Void> access = access();
 		for (int j = 0; j < oldCapacity; j++) {
 			E t = oldStore.get(j);
-			if (t != null) access.add(t);
+			if (t != null) access.add(t, false);
 		}
 		return access;
 	}
