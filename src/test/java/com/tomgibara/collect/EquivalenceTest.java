@@ -15,7 +15,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.tomgibara.hashing.HashCode;
@@ -389,5 +388,22 @@ public class EquivalenceTest {
 		EquivalenceSet<String> set = sets.emptySet();
 		assertTrue(set.isEmpty());
 		assertFalse(set.isMutable());
+	}
+
+	@Test
+	public void testPuttingNull() {
+		EquivalenceMap<Integer, Integer> map = Collect
+				.<Integer>equality()
+				.setsWithTypedStorage(int.class)
+				.mappedToTypedStorage(int.class)
+				.newMap();
+
+		assertFalse( map.containsKey(1) );
+		assertNull( map.put(1, 99) );
+		assertTrue( map.containsKey(1) );
+		assertEquals(99, map.put(1, null).intValue());
+		assertTrue( map.containsKey(1) );
+		assertNull( map.put(1, 66) );
+		assertEquals(66, map.remove(1).intValue());
 	}
 }

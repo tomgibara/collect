@@ -230,7 +230,6 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 	}
 	
 	private V putImpl(K key, V value, boolean overwrite) {
-		if (value == null) throw new IllegalArgumentException("null value");
 		checkMutable();
 		return access().put(key, value, overwrite);
 	}
