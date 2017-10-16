@@ -73,15 +73,15 @@ public class EquivalenceTest {
 	}
 	
 	private void testModuloSet(int n, StorageType s) {
-		EquivalenceCollections<Integer> equivalence = Collect.equivalence(modulo(n));
 		EquivalenceSet<Integer> set;
+		Equivalence<Integer> equ = modulo(n);
 		switch (s) {
 		case GENERIC:
-			set = equivalence.setsWithGenericStorage().newSet(); break;
+			set = Collect.<Integer>sets().underEquivalence(equ).newSet(); break;
 		case OBJECT:
-			set = equivalence.setsWithTypedStorage(Integer.class).newSet(); break;
+			set = Collect.setsOf(Integer.class).underEquivalence(equ).newSet(); break;
 		case PRIMITIVE:
-			set = equivalence.setsWithTypedStorage(int.class).newSet(); break;
+			set = Collect.setsOf(int.class).underEquivalence(equ).newSet(); break;
 			default: throw new IllegalStateException();
 		}
 		assertTrue(set.isEmpty());
@@ -132,15 +132,14 @@ public class EquivalenceTest {
 
 	private void testModuloMap(int n, StorageType s) {
 		Equivalence<Integer> rel = modulo(n);
-		EquivalenceCollections<Integer> equivalence = Collect.equivalence(rel);
 		EquivalenceMap<Integer, String> map;
 		switch (s) {
 		case GENERIC:
-			map = equivalence.setsWithGenericStorage().mappedToTypedStorage(String.class).newMap(); break;
+			map = Collect.<Integer>sets().underEquivalence(rel).mappedTo(String.class).newMap(); break;
 		case OBJECT:
-			map = equivalence.setsWithTypedStorage(Integer.class).mappedToTypedStorage(String.class).newMap(); break;
+			map = Collect.setsOf(Integer.class).underEquivalence(rel).mappedTo(String.class).newMap(); break;
 		case PRIMITIVE:
-			map = equivalence.setsWithTypedStorage(int.class).mappedToTypedStorage(String.class).newMap(); break;
+			map = Collect.setsOf(int.class).underEquivalence(rel).mappedTo(String.class).newMap(); break;
 			default: throw new IllegalStateException();
 		}
 		assertTrue(map.isEmpty());
@@ -202,8 +201,7 @@ public class EquivalenceTest {
 	
 	@Test
 	public void testMapSetConsistency() {
-		EquivalenceCollections<String> equality = Collect.equality();
-		EquivalenceMap<String, String> map = equality.setsWithTypedStorage(String.class).mappedToTypedStorage(String.class).newMap();
+		EquivalenceMap<String, String> map = Collect.setsOf(String.class).mappedTo(String.class).newMap();
 		int size = 1000;
 		String[] strs = new String[size];
 		for (int i = 0; i < 1000; i++) {
@@ -220,7 +218,7 @@ public class EquivalenceTest {
 	
 	@Test
 	public void testValues() {
-		EquivalenceMap<Object, Object> map = Collect.equality().setsWithGenericStorage().mappedToGenericStorage().newMap();
+		EquivalenceMap<Object, Object> map = Collect.sets().mapped().newMap();
 		Collection<Object> values = map.values();
 		assertTrue(values.isEmpty());
 		assertFalse(values.iterator().hasNext());
@@ -235,9 +233,8 @@ public class EquivalenceTest {
 	@Test
 	public void testKeys() {
 		EquivalenceMap<String, String> map = Collect
-				.<String>equality()
-				.setsWithGenericStorage()
-				.<String>mappedToGenericStorage()
+				.<String>sets()
+				.<String>mapped()
 				.newMap();
 		checkKeys(map);
 	}
@@ -245,9 +242,8 @@ public class EquivalenceTest {
 	@Test
 	public void testKeys2() {
 		EquivalenceMap<String,String> map = Collect
-				.<String>equality()
-				.setsWithTypedStorage(String.class)
-				.mappedToTypedStorage(String.class)
+				.setsOf(String.class)
+				.mappedTo(String.class)
 				.newMap();
 		checkKeys(map);
 	}
@@ -267,9 +263,8 @@ public class EquivalenceTest {
 	@Test
 	public void testKeySet() {
 		EquivalenceMap<Integer, Integer> map = Collect
-				.<Integer>equality()
-				.setsWithTypedStorage(int.class)
-				.mappedToTypedStorage(int.class)
+				.setsOf(int.class)
+				.mappedTo(int.class)
 				.newMap();
 		// build map
 		map.put(1, 2);
@@ -320,8 +315,7 @@ public class EquivalenceTest {
 	@Test
 	public void testImmutableSetView() {
 		EquivalenceSet<Integer> set = Collect
-				.<Integer>equality()
-				.setsWithTypedStorage(int.class)
+				.setsOf(int.class)
 				.newSet();
 		EquivalenceSet<Integer> view = set.immutableView();
 		
@@ -334,9 +328,8 @@ public class EquivalenceTest {
 	@Test
 	public void testImmutableMapView() {
 		EquivalenceMap<Integer, Integer> map = Collect
-				.<Integer>equality()
-				.setsWithTypedStorage(int.class)
-				.mappedToTypedStorage(int.class)
+				.setsOf(int.class)
+				.mappedTo(int.class)
 				.newMap();
 		EquivalenceMap<Integer, Integer> view = map.immutableView();
 		
@@ -349,7 +342,7 @@ public class EquivalenceTest {
 
 	@Test
 	public void testSome() {
-		EquivalenceSet<String> set = Collect.<String>equality().setsWithGenericStorage().newSet();
+		EquivalenceSet<String> set = Collect.<String>sets().newSet();
 		assertNull(set.some());
 		set.add("X");
 		assertEquals("X", set.some());
@@ -363,9 +356,8 @@ public class EquivalenceTest {
 		assertNull(set.some());
 
 		EquivalenceMap<Integer, Integer> map = Collect
-				.<Integer>equality()
-				.setsWithTypedStorage(int.class)
-				.mappedToTypedStorage(int.class)
+				.setsOf(int.class)
+				.mappedTo(int.class)
 				.newMap();
 
 		assertNull(map.keySet().some());
@@ -375,8 +367,7 @@ public class EquivalenceTest {
 
 	@Test
 	public void testSingletonSet() {
-		EquivalenceCollections<String>.Sets sets = Collect.<String>equality().setsWithGenericStorage();
-		EquivalenceSet<String> set = sets.singletonSet("X");
+		EquivalenceSet<String> set = Collect.<String>sets().singletonSet("X");
 		assertEquals(1, set.size());
 		assertTrue(set.contains("X"));
 		assertFalse(set.isMutable());
@@ -384,8 +375,7 @@ public class EquivalenceTest {
 
 	@Test
 	public void testEmptySet() {
-		EquivalenceCollections<String>.Sets sets = Collect.<String>equality().setsWithGenericStorage();
-		EquivalenceSet<String> set = sets.emptySet();
+		EquivalenceSet<String> set = Collect.<String>sets().emptySet();
 		assertTrue(set.isEmpty());
 		assertFalse(set.isMutable());
 	}
@@ -393,9 +383,8 @@ public class EquivalenceTest {
 	@Test
 	public void testPuttingNull() {
 		EquivalenceMap<Integer, Integer> map = Collect
-				.<Integer>equality()
-				.setsWithTypedStorage(int.class)
-				.mappedToTypedStorage(int.class)
+				.setsOf(int.class)
+				.mappedTo(int.class)
 				.newMap();
 
 		assertFalse( map.containsKey(1) );
