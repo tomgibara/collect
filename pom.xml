@@ -44,7 +44,7 @@
     <dependency>
       <groupId>com.tomgibara.hashing</groupId>
       <artifactId>hashing</artifactId>
-      <version>2.1.1-SNAPSHOT</version>
+      <version>2.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.tomgibara.fundament</groupId>
@@ -54,7 +54,7 @@
     <dependency>
       <groupId>com.tomgibara.storage</groupId>
       <artifactId>storage</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>
