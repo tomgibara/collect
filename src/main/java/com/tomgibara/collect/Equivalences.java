@@ -1,8 +1,11 @@
 package com.tomgibara.collect;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Objects;
 
+import com.tomgibara.hashing.HashCode;
+import com.tomgibara.hashing.HashSize;
 import com.tomgibara.hashing.Hasher;
 import com.tomgibara.hashing.Hashing;
 
@@ -57,4 +60,24 @@ class Equivalences {
 		@Override public Hasher<double[]> getHasher() { return Hashing.doublesHasher(); }
 	};
 
+	static final Equivalence<BigDecimal> BIG_DECIMAL = new Equivalence<BigDecimal>() {
+
+		@Override
+		public boolean isEquivalent(BigDecimal e1, BigDecimal e2) {
+			if (e1 == e2) return true;
+			if (e1 == null) return e2 == null;
+			if (e2 == null) return false;
+			return e1.compareTo(e2) == 0;
+		}
+
+		@Override
+		public Hasher<BigDecimal> getHasher() {
+			return new Hasher<BigDecimal>() {
+				@Override public HashSize getSize()                 { return HashSize.INT_SIZE;                                    }
+				@Override public HashCode hash(BigDecimal value)    { return HashCode.fromInt(intHashValue(value));                }
+				@Override public int intHashValue(BigDecimal value) { return value == null ? 0 : value.hashCode() - value.scale(); }
+			};
+		}
+
+	};
 }

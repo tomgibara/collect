@@ -1,5 +1,6 @@
 package com.tomgibara.collect;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 import com.tomgibara.hashing.Hasher;
@@ -168,6 +169,27 @@ public interface Equivalence<E> {
 
 	public static Equivalence<double[]> doubles() {
 		return Equivalences.DOUBLES;
+	}
+
+	/**
+	 * <p>
+	 * An equivalence in which two {@link BigDecimal} values are equivalent if
+	 * they compare as zero. This avoids the dislocation that occurs when two
+	 * {@link BigDecimal} that have two equal numerical values compare as
+	 * <i>unequal</i> because they have different scales.
+	 *
+	 * <p>
+	 * <b>Warning:</b> this equivalence attempts to provide a scale invariant
+	 * hash that is consistent with {@code BigDecimal.compare()}. In the absence
+	 * of any efficient means by which to generate a hash, it makes assumptions
+	 * about the implementation of the {@code BigDecimal.hashCode()} method that
+	 * may not be true on all Java platforms.
+	 *
+	 * @return a comparison based equivalence on big decimals
+	 */
+
+	public static Equivalence<BigDecimal> bigDecimal() {
+		return Equivalences.BIG_DECIMAL;
 	}
 
 	/**
