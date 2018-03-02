@@ -5,9 +5,15 @@ import java.util.Map;
 import com.tomgibara.fundament.Mutability;
 
 /**
+ * <p>
  * A map in which the notions of both key equality and value equality are
  * generalized to 'equivalence'. Maps of this nature also support mutability
  * control through the <code>Mutability</code> interface.
+ *
+ * <p>
+ * In adhering to the Java Collections API, the definitions of
+ * {@link #equals(Object)} and {@link #hashCode()} do not reflect the
+ * equivalence relation imposed on the map's keys or values.
  * 
  * @author Tom Gibara
  *

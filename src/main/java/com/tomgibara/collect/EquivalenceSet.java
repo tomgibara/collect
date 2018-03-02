@@ -8,7 +8,12 @@ import com.tomgibara.fundament.Mutability;
  * A set in which the notion of equality is generalized to 'equivalence'. Sets
  * of this nature also support mutability control through the
  * <code>Mutability</code> interface.
- * 
+ *
+ * <p>
+ * In adhering to the Java Collections API, the definitions of
+ * {@link #equals(Object)} and {@link #hashCode()} do not reflect the
+ * equivalence relation imposed on the set's members.
+ *
  * @author Tom Gibara
  *
  * @param <E>
