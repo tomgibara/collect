@@ -219,9 +219,10 @@ public final class Collect {
 
 		private static final int DEFAULT_CAPACITY = 16;
 
-		private final Sets<K> sets;
-		private final Storage<V> storage;
-		private final Equivalence<V> equivalence;
+		final Sets<K> sets;
+		final Storage<V> storage;
+		final Equivalence<V> equivalence;
+		private EquivalenceMap<K,V> empty = null;
 
 		Maps(Sets<K> sets, Storage<V> storage) {
 			this.sets = sets;
@@ -237,6 +238,10 @@ public final class Collect {
 
 		public EquivalenceMap<K, V> newMap() {
 			return new CuckooEquivalenceMap<>(new Cuckoo<>(new Random(0L), sets.equivalence), sets.storage, storage, equivalence, DEFAULT_CAPACITY);
+		}
+
+		public EquivalenceMap<K, V> emptyMap() {
+			return empty == null ? empty = new CuckooEquivalenceMap<>(sets.trivialCuckoo(), sets.storage, storage, equivalence, 0).immutable() : empty;
 		}
 
 		public Maps<K,V> underEquality() {
@@ -255,6 +260,7 @@ public final class Collect {
 		private Maps<K,V> under(Equivalence<V> equivalence) {
 			return equivalence == this.equivalence ? this : new Maps<>(this, equivalence);
 		}
+
 	}
 
 	private Collect() {}
