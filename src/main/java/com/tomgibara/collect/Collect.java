@@ -164,7 +164,8 @@ public final class Collect {
 		}
 
 		public EquivalenceSet<E> emptySet() {
-			return emptySet == null ? emptySet = new CuckooEquivalenceSet<>(trivialCuckoo(), storage, 0).immutable() : emptySet;
+			//note: must be given a non-zero capacity, because hashes cannot be zero sized
+			return emptySet == null ? emptySet = new CuckooEquivalenceSet<>(trivialCuckoo(), storage, 1).immutable() : emptySet;
 		}
 
 		/**
@@ -241,7 +242,8 @@ public final class Collect {
 		}
 
 		public EquivalenceMap<K, V> emptyMap() {
-			return empty == null ? empty = new CuckooEquivalenceMap<>(sets.trivialCuckoo(), sets.storage, storage, equivalence, 0).immutable() : empty;
+			//note: must be given a non-zero capacity, because hashes cannot be zero sized
+			return empty == null ? empty = new CuckooEquivalenceMap<>(sets.trivialCuckoo(), sets.storage, storage, equivalence, 1).immutable() : empty;
 		}
 
 		public Maps<K,V> underEquality() {

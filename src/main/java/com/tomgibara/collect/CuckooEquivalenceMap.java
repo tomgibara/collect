@@ -18,7 +18,7 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 	private final Storage<K> keyStorage;
 	private final Storage<V> valueStorage;
 	private final Equivalence<V> equ;
-	private Hasher<K> hasher = null;
+	private Hasher<K> hasher;
 	private Store<K> keyStore;
 	private Store<V> valueStore;
 	
@@ -31,7 +31,7 @@ final class CuckooEquivalenceMap<K, V> extends AbstractMap<K, V> implements Equi
 		this.keyStorage = keyStorage;
 		this.valueStorage = valueStorage;
 		this.equ = equ;
-		hasher = cuckoo.updateHasher(hasher, initialCapacity);
+		hasher = cuckoo.updateHasher(null, initialCapacity);
 		keyStore = keyStorage.newStore(initialCapacity);
 		valueStore = valueStorage.newStore(initialCapacity);
 	}
