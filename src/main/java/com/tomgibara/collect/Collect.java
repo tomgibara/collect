@@ -151,14 +151,15 @@ public final class Collect {
 			} else {
 				capacity = Math.round(es.size() * 1.2f);
 			}
-			EquivalenceSet<E> set = new CuckooEquivalenceSet<>(new Cuckoo<>(new Random(0L), equivalence), storage, capacity);
+			//TODO should be a more efficient way of doing this
+			EquivalenceSet<E> set = new CuckooEquivalenceSet<>(new Cuckoo<>(new Random(0L), equivalence), storage.mutable(), capacity);
 			set.addAll(es);
-			return set;
+			return storage.isStorageMutable() ? set : set.immutableView();
 		}
 
 		public EquivalenceSet<E> singletonSet(E el) {
 			if (el == null) throw new IllegalArgumentException("null el");
-			EquivalenceSet<E> set = new CuckooEquivalenceSet<>(trivialCuckoo(), storage, 1);
+			EquivalenceSet<E> set = new CuckooEquivalenceSet<>(trivialCuckoo(), storage.mutable(), 1);
 			set.add(el);
 			return set.immutable();
 		}
